@@ -63,7 +63,7 @@ public class AuthService {
         // Initialize empty BehaviorProfile
         BehaviorProfile behaviorProfile = BehaviorProfile.builder()
                 .user(user)
-                .avgTransactionAmount(BigDecimal.ZERO)
+                .avgTransactionAmount(BigDecimal.valueOf(10000)) // default ₹10,000 avg
                 .avgLoginHour(12)
                 .actionSpeedAvgSeconds(0.0)
                 .otpRetryCount(0)

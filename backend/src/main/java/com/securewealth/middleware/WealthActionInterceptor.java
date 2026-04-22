@@ -1,7 +1,6 @@
 package com.securewealth.middleware;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.securewealth.dto.request.WealthActionRequest;
 import com.securewealth.dto.response.WPRSResponse;
 import com.securewealth.model.enums.EventDecision;
 import com.securewealth.service.security.WPRSService;
@@ -11,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.util.ContentCachingRequestWrapper;
 
 import java.math.BigDecimal;
 
@@ -25,33 +23,39 @@ public class WealthActionInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        
-        // This interceptor only applies to POST/PUT requests handled by specific config mappings
+
         if (!request.getMethod().equalsIgnoreCase("POST")) {
             return true;
         }
 
         Long userId = (Long) request.getAttribute("X-User-Id");
-        if (userId == null) return true; // Let standard auth filter handle 401s
-        
+        if (userId == null) return true;
+
         String deviceId = request.getHeader("X-Device-ID");
-        
-        // To read request body in interceptor, we need cached wrapper (handled by filter usually)
-        // For hackathon simplicity, we might read specific headers or params, or if using wrapper:
+
+        // Read amount and actionType from headers to avoid consuming request body
         BigDecimal amount = BigDecimal.ZERO;
         String actionType = "INVESTMENT_ACTION";
-        
-        if (request instanceof ContentCachingRequestWrapper wrapper) {
-            byte[] body = wrapper.getContentAsByteArray();
+
+        String amountHeader = request.getHeader("X-Action-Amount");
+        String actionTypeHeader = request.getHeader("X-Action-Type");
+
+        if (amountHeader != null) {
             try {
-                WealthActionRequest actionRequest = objectMapper.readValue(body, WealthActionRequest.class);
-                amount = actionRequest.getAmount() != null ? actionRequest.getAmount() : BigDecimal.ZERO;
-                actionType = actionRequest.getActionType() != null ? actionRequest.getActionType() : actionType;
-            } catch (Exception ignored) { }
+                amount = new BigDecimal(amountHeader);
+            } catch (Exception e) {
+                log.warn("Invalid X-Action-Amount header: {}", amountHeader);
+            }
         }
 
+        if (actionTypeHeader != null) {
+            actionType = actionTypeHeader;
+        }
+
+        log.info("Interceptor read: actionType={}, amount={}", actionType, amount);
+
         WPRSResponse wprsResponse = wprsService.evaluate(userId, actionType, amount, deviceId, request);
-        
+
         if (wprsResponse.getDecision().equals(EventDecision.BLOCK.name())) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.setContentType("application/json");

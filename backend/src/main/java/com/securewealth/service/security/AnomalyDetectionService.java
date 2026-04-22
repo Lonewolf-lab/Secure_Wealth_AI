@@ -21,7 +21,9 @@ public class AnomalyDetectionService {
         if (amount == null) return false;
 
         // 1. Ask ML Service first (if available and returns true)
-        if (mlServiceClient.checkAnomaly(userId, amount)) {
+        boolean mlResult = mlServiceClient.checkAnomaly(userId, amount);
+        log.info("ML anomaly check result for userId={}, amount={}: {}", userId, amount, mlResult);
+        if (mlResult) {
             return true;
         }
 
@@ -29,9 +31,14 @@ public class AnomalyDetectionService {
         return behaviorProfileRepository.findByUserId(userId)
                 .map(profile -> {
                     BigDecimal avg = profile.getAvgTransactionAmount();
-                    if (avg == null || avg.compareTo(BigDecimal.ZERO) == 0) return false;
-                    // Anomaly if amount > 3x average
-                    return amount.compareTo(avg.multiply(BigDecimal.valueOf(3))) > 0;
+                    log.info("BehaviorProfile avgTransactionAmount for userId={}: {}", userId, avg);
+                    if (avg == null || avg.compareTo(BigDecimal.ZERO) == 0) {
+                        avg = BigDecimal.valueOf(10000);
+                    }
+                    boolean isAnomaly = amount.compareTo(avg.multiply(BigDecimal.valueOf(3))) > 0;
+                    log.info("Anomaly check: amount={}, avg={}, 3x avg={}, isAnomaly={}",
+                            amount, avg, avg.multiply(BigDecimal.valueOf(3)), isAnomaly);
+                    return isAnomaly;
                 })
                 .orElse(false);
     }
