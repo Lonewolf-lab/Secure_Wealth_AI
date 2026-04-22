@@ -28,5 +28,6 @@ Thumbs.db
 # Logs
 *.log
 logs/
-
+*.txt
 .idea/
+.vscode/
