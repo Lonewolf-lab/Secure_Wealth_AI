@@ -1,0 +1,15 @@
+{
+  "gold_price_per_gram_inr": 7250.0,
+  "nifty50": 24350.5,
+  "sensex": 80100.2,
+  "repo_rate_percent": 6.5,
+  "inflation_percent": 4.8,
+  "usd_inr": 83.5,
+  "top_mf_nav": [
+    {"name": "Axis Bluechip Fund", "nav": 52.34, "1y_return": 14.2},
+    {"name": "SBI ELSS Tax Saver", "nav": 234.12, "1y_return": 16.8},
+    {"name": "HDFC Mid-Cap Opp", "nav": 112.45, "1y_return": 22.1}
+  ],
+  "sentiment": "POSITIVE",
+  "sentiment_summary": "RBI holds repo rate steady; gold demand rises on global uncertainty"
+}
