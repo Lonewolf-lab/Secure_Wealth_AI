@@ -1,0 +1,113 @@
+.testimonials-section {
+  padding: 8rem 0;
+  background-color: var(--bg-primary);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.testimonials-header {
+  margin-bottom: 5rem;
+}
+
+.stats-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 8rem;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all var(--transition-medium);
+}
+
+.stat-item:hover {
+  border-bottom-color: var(--accent-color);
+}
+
+.stat-value {
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 800;
+  letter-spacing: -2px;
+  color: var(--text-primary);
+  transition: color var(--transition-medium);
+}
+
+.stat-item:hover .stat-value {
+  color: var(--accent-color);
+  transform: translateX(20px);
+}
+
+.stat-details {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.stat-label {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stat-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all var(--transition-medium);
+}
+
+.stat-item:hover .stat-link {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.quote-container {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.testimonial-quote {
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-family: var(--font-heading);
+  line-height: 1.4;
+  margin-bottom: 2rem;
+  color: var(--text-primary);
+}
+
+.quote-author {
+  font-size: 1.1rem;
+  color: var(--accent-color);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .stat-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .stat-details {
+    text-align: left;
+    align-items: flex-start;
+  }
+  
+  .stat-item:hover .stat-value {
+    transform: translateX(10px);
+  }
+}

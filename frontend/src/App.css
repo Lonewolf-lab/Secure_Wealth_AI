@@ -1,0 +1,37 @@
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex-grow: 1;
+}
+
+/* Animation utilities */
+.fade-in {
+  animation: fadeIn var(--transition-slow) forwards;
+  opacity: 0;
+}
+
+.slide-up {
+  animation: slideUp var(--transition-slow) forwards;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
