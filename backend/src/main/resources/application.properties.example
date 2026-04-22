@@ -1,0 +1,7 @@
+spring.datasource.url=jdbc:postgresql://localhost:5432/securewealthdb
+spring.datasource.username=your_username
+spring.datasource.password=your_password
+app.jwt.secret=your_jwt_secret
+app.ml-service.base-url=http://localhost:8000
+spring.data.redis.host=localhost
+spring.data.redis.port=6379
