@@ -1,0 +1,91 @@
+"""
+Secure Wealth Twin — Behavioral Biometrics ML Model Training
+================================================================
+Trains an Isolation Forest on session behavior features (population-
+level), complementing the per-user baseline z-score check in
+behavioral_biometrics.py. Useful for users who don't have a baseline
+yet (first few sessions), where per-user comparison isn't possible but
+population-level anomaly detection still is.
+
+Expected execution location: src/ml_engines/train_behavioral_model.py
+Reads from:  ../../data/session_behavior_data.csv
+Writes to:   ../../models/behavioral_model.pkl
+             ../../models/behavioral_preprocessor.joblib
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+import joblib
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import IsolationForest
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.preprocessing import StandardScaler
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = SCRIPT_DIR.parent.parent
+
+DATA_PATH = PROJECT_ROOT / "data" / "session_behavior_data.csv"
+MODELS_DIR = PROJECT_ROOT / "models"
+MODEL_OUTPUT_PATH = MODELS_DIR / "behavioral_model.pkl"
+PREPROCESSOR_OUTPUT_PATH = MODELS_DIR / "behavioral_preprocessor.joblib"
+
+RANDOM_STATE = 42
+LABEL_COLUMN = "is_anomaly"
+FEATURE_COLUMNS = [
+    "typing_speed_wpm", "keystroke_interval_std_ms", "session_duration_sec",
+    "login_hour", "geo_distance_from_home_km", "failed_pin_attempts", "device_change_flag",
+]
+CONTAMINATION = 0.025
+
+
+def main() -> None:
+    print("=" * 70)
+    print("Secure Wealth Twin — Behavioral Biometrics ML Training")
+    print("=" * 70)
+
+    if not DATA_PATH.exists():
+        raise FileNotFoundError(f"Run generate_synthetic_sessions.py first. Missing: {DATA_PATH}")
+
+    df = pd.read_csv(DATA_PATH)
+    print(f"✅ Loaded {len(df)} rows")
+
+    X = df[FEATURE_COLUMNS].copy()
+    y_true = df[LABEL_COLUMN].copy()
+
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    model = IsolationForest(
+        n_estimators=200, contamination=CONTAMINATION,
+        random_state=RANDOM_STATE, n_jobs=-1,
+    )
+    print("\n🚀 Training IsolationForest...")
+    model.fit(X_scaled)
+    print("✅ Training complete.")
+
+    raw_pred = model.predict(X_scaled)
+    y_pred = np.where(raw_pred == -1, 1, 0)
+
+    print("\n" + "=" * 70)
+    print("EVALUATION")
+    print("=" * 70)
+    print(confusion_matrix(y_true, y_pred))
+    print(classification_report(y_true, y_pred, target_names=["Normal", "Anomaly"], digits=4, zero_division=0))
+
+    MODELS_DIR.mkdir(parents=True, exist_ok=True)
+    joblib.dump(model, MODEL_OUTPUT_PATH)
+    joblib.dump({"scaler": scaler, "feature_columns": FEATURE_COLUMNS}, PREPROCESSOR_OUTPUT_PATH)
+    print(f"\n💾 Saved: {MODEL_OUTPUT_PATH}")
+    print(f"💾 Saved: {PREPROCESSOR_OUTPUT_PATH}")
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as exc:
+        print(f"\n❌ Training failed: {exc}", file=sys.stderr)
+        sys.exit(1)
