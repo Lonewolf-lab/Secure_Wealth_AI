@@ -24,7 +24,7 @@ if str(src_path) not in sys.path:
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from api.schemas import InvestmentRequest, PortfolioRebalanceRequest, TransactionRequest
+from api.schemas import InvestmentRequest, PortfolioRebalanceRequest, TransactionRequest, ChatRequest, ChatResponse
 from guardrails.compliance import validate_financial_guardrails, validate_prediction_confidence
 from ml_engines.tax_saving_engine import analyze_tax_situation
 from ml_engines.portfolio_rebalancer import recommend_portfolio_allocation
@@ -427,3 +427,68 @@ def session_risk(current_session: dict, baseline: Optional[dict] = None):
         return {"success": True, **result}
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Session risk scoring failed: {str(e)}")
+
+
+import requests
+
+OLLAMA_URL = "http://localhost:11434/api/generate"
+OLLAMA_MODEL = "llama3.2:3b"
+OLLAMA_TIMEOUT_SECONDS = 15
+
+_CHAT_SYSTEM_PROMPT = (
+    "You are a helpful, warm, and highly professional AI wealth advisor for Punjab & Sind Bank (PSB). "
+    "Your name is SecureWealth Assistant. You help customers with wealth management, portfolios, "
+    "Indian tax saving (Section 80C, 80D, etc.), and transaction security. "
+    "STRICT RULES: "
+    "1) Answer questions in 2-4 sentences max. Keep it concise. "
+    "2) Be friendly, polite, and explain things clearly. "
+    "3) If asked about a user's portfolio or specific investments, encourage them to view their dashboard. "
+    "4) Never make up facts or give specific advice beyond standard banking guidance."
+)
+
+
+@app.post("/api/ml/chat", response_model=ChatResponse)
+def chat_with_advisor(payload: ChatRequest):
+    """
+    General Chatbot Endpoint. Interacts with the user using the local Ollama LLM,
+    providing answers regarding tax saving, portfolio rebalancing, and transaction security.
+    Degrades gracefully to rules-based templates if Ollama is unreachable.
+    """
+    message = payload.message
+    history = payload.conversationHistory or []
+
+    # Construct prompt with conversation history context
+    full_prompt = f"{_CHAT_SYSTEM_PROMPT}\n\n"
+    for msg in history:
+        role_label = "Customer" if msg.role == "user" else "Assistant"
+        full_prompt += f"{role_label}: {msg.content}\n"
+    full_prompt += f"Customer: {message}\nAssistant:"
+
+    try:
+        response = requests.post(
+            OLLAMA_URL,
+            json={"model": OLLAMA_MODEL, "prompt": full_prompt, "stream": False},
+            timeout=OLLAMA_TIMEOUT_SECONDS,
+        )
+        if response.status_code == 200:
+            data = response.json()
+            text = data.get("response", "").strip()
+            if text:
+                return ChatResponse(response=text)
+    except Exception:
+        pass
+
+    # Rules-based fallback if Ollama is not running/available
+    msg_lower = message.lower() if hasattr(message, "lower") else str(message).lower()
+
+    reply = "I'm currently running in offline helper mode. I can suggest setting up financial goals or analyzing your tax liabilities. What would you like to check?"
+    if "tax" in msg_lower:
+        reply = "Under Section 80C, you can invest up to ₹1.5 Lakhs in ELSS funds, PPF, or PSB Fixed Deposits to save tax. If that is maxed out, consider National Pension System (NPS) under Section 80CCD(1B) for an additional ₹50,000 deduction."
+    elif "portfolio" in msg_lower or "investment" in msg_lower or "net worth" in msg_lower:
+        reply = "I recommend checking the 'Portfolio' tab on your dashboard. It displays a live view of your assets and active investments (like SIPs and Fixed Deposits)."
+    elif "goal" in msg_lower:
+        reply = "You can define target milestones (like a Retirement Corpus or Travel Fund) on the dashboard, and see simulated Monte Carlo projections of your savings progress."
+    elif "fraud" in msg_lower or "security" in msg_lower or "blocked" in msg_lower:
+        reply = "Our Security Twin monitors transaction risk. If a transaction has high velocity or comes from an unrecognized device, it will be flagged for your protection. You can review all logs in the Security Audit Log."
+
+    return ChatResponse(response=reply)

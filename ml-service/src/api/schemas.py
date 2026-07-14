@@ -149,3 +149,17 @@ class FraudDetectionResponse(BaseModel):
     risk_score: float = Field(..., ge=0, le=100, description="0 (safe) to 100 (highly suspicious)")
     risk_level: str = Field(..., description="'Low', 'Medium', or 'High'")
     raw_anomaly_score: float = Field(..., description="Raw Isolation Forest decision_function output")
+
+
+class ChatMessage(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str
+
+
+class ChatRequest(BaseModel):
+    message: str
+    conversationHistory: Optional[list[ChatMessage]] = None
+
+
+class ChatResponse(BaseModel):
+    response: str
