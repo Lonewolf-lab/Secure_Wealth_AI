@@ -1,3 +1,14 @@
 node_modules/
 package-lock.json
 package.json
+CONTEXT.md
+
+# Python
+**/__pycache__/
+**/*.pyc
+venv/
+.venv/
+ml-service/venv/
+ml-service/logs/
+*.log
+
