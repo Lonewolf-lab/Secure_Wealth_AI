@@ -18,16 +18,8 @@ import Portfolio from './modules/Portfolio';
 import Goals from './modules/Goals';
 import AIAdvisor from './modules/AIAdvisor';
 import Security from './modules/Security';
+import Chatbot from './modules/Chatbot';
 import './Dashboard.css';
-
-// Lazy placehold subcomponents for future phases
-const ChatbotPlaceholder = () => (
-  <div className="module-placeholder">
-    <div className="pulse-circle"><MessageSquareCode size={32} /></div>
-    <h3>AI Chat Assistant (Phase 6)</h3>
-    <p>Local Ollama narrator and chat assistant will be integrated in Phase 6.</p>
-  </div>
-);
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -45,7 +37,7 @@ const Dashboard = () => {
     { id: 'goals', label: 'Goals', icon: <Target size={20} />, component: <Goals /> },
     { id: 'advisor', label: 'AI Advisor', icon: <BrainCircuit size={20} />, component: <AIAdvisor /> },
     { id: 'security', label: 'Security Twin', icon: <ShieldAlert size={20} />, component: <Security /> },
-    { id: 'chat', label: 'AI Chatbot', icon: <MessageSquareCode size={20} />, component: <ChatbotPlaceholder /> },
+    { id: 'chat', label: 'AI Chatbot', icon: <MessageSquareCode size={20} />, component: <Chatbot /> },
   ];
 
   const renderActiveModule = () => {
