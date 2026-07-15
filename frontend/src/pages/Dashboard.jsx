@@ -15,25 +15,11 @@ import {
 } from 'lucide-react';
 import Overview from './modules/Overview';
 import Portfolio from './modules/Portfolio';
+import Goals from './modules/Goals';
+import AIAdvisor from './modules/AIAdvisor';
 import './Dashboard.css';
 
 // Lazy placehold subcomponents for future phases
-const GoalsPlaceholder = () => (
-  <div className="module-placeholder">
-    <div className="pulse-circle"><Target size={32} /></div>
-    <h3>Financial Goals (Phase 3)</h3>
-    <p>Goal progress monitoring and Monte Carlo mathematical projections will be integrated in Phase 3.</p>
-  </div>
-);
-
-const AIAdvisorPlaceholder = () => (
-  <div className="module-placeholder">
-    <div className="pulse-circle"><BrainCircuit size={32} /></div>
-    <h3>AI Advisor & Optimizer (Phase 4)</h3>
-    <p>Asset allocation classifiers, Mean-Variance rebalancing, and Prophet forecasts will be integrated in Phase 4.</p>
-  </div>
-);
-
 const SecurityTwinPlaceholder = () => (
   <div className="module-placeholder">
     <div className="pulse-circle"><ShieldAlert size={32} /></div>
@@ -63,8 +49,8 @@ const Dashboard = () => {
   const navItems = [
     { id: 'overview', label: 'Overview', icon: <LayoutDashboard size={20} />, component: <Overview /> },
     { id: 'portfolio', label: 'Portfolio', icon: <Wallet size={20} />, component: <Portfolio /> },
-    { id: 'goals', label: 'Goals', icon: <Target size={20} />, component: <GoalsPlaceholder /> },
-    { id: 'advisor', label: 'AI Advisor', icon: <BrainCircuit size={20} />, component: <AIAdvisorPlaceholder /> },
+    { id: 'goals', label: 'Goals', icon: <Target size={20} />, component: <Goals /> },
+    { id: 'advisor', label: 'AI Advisor', icon: <BrainCircuit size={20} />, component: <AIAdvisor /> },
     { id: 'security', label: 'Security Twin', icon: <ShieldAlert size={20} />, component: <SecurityTwinPlaceholder /> },
     { id: 'chat', label: 'AI Chatbot', icon: <MessageSquareCode size={20} />, component: <ChatbotPlaceholder /> },
   ];

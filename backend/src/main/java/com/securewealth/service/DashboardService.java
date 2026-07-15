@@ -6,7 +6,9 @@ import com.securewealth.external.MockAAClient;
 import com.securewealth.external.MockMarketFeedClient;
 import com.securewealth.model.Goal;
 import com.securewealth.model.Transaction;
+import com.securewealth.model.WealthScore;
 import com.securewealth.repository.GoalRepository;
+import com.securewealth.repository.WealthScoreRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,10 +28,14 @@ public class DashboardService {
     private final PortfolioService portfolioService;
     private final GamificationService gamificationService;
     private final GoalRepository goalRepository;
+    private final WealthScoreRepository wealthScoreRepository;
 
     public DashboardResponse getSummary(Long userId) {
         var portfolio = portfolioService.getPortfolio(userId);
-        var wealthScoreResponse = gamificationService.getWealthScore(userId);
+        
+        // Recalculates and saves fresh score
+        gamificationService.getWealthScore(userId);
+        WealthScore wealthScore = wealthScoreRepository.findByUserId(userId).orElse(null);
 
         JsonNode aaProfile = mockAAClient.getCustomerProfile(userId);
         BigDecimal monthlyIncome = BigDecimal.ZERO;
@@ -61,9 +67,7 @@ public class DashboardService {
                 .monthlyIncome(monthlyIncome)
                 .monthlySavingsRate(savingsRate)
                 .topGoal(topGoal)
-                // In actual code, we map WealthScore properly, for Hackathon a partial object or mapping works 
-                // We're returning the response properties in the DashboardResponse.
-                .wealthScore(null) // Or map the response back
+                .wealthScore(wealthScore)
                 .recentTransactions(recentTransactions)
                 .marketAlerts(marketAlerts)
                 .build();

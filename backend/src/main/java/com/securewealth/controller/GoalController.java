@@ -37,11 +37,6 @@ public class GoalController {
     @GetMapping("/{id}/projection")
     public ResponseEntity<Map<String, Object>> getProjection(@RequestAttribute("X-User-Id") Long userId,
                                                              @PathVariable Long id) {
-        // Simplified mapping, returns whether goal is achievable and projected corpus
-        return ResponseEntity.ok(Map.of(
-           "status", "ON_TRACK",
-           "projectedAmountAtDeadline", 550000,
-           "suggestion", "Continue current SIP to meet the deadline."
-        ));
+        return ResponseEntity.ok(goalService.getGoalProjection(userId, id));
     }
 }
