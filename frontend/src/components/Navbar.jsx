@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,21 +27,44 @@ const Navbar = () => {
     }
   }, [isMenuOpen]);
 
+  const handleLogoutClick = async () => {
+    setIsMenuOpen(false);
+    await logout();
+    navigate('/');
+  };
+
   return (
     <>
       <header className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
         <div className="container nav-container">
           <div className="logo">
-            <a href="#">SecureWealth <span className="text-accent">AI</span></a>
+            <Link to="/">SecureWealth <span className="text-accent">AI</span></Link>
           </div>
 
-          <button 
-            className="menu-trigger-btn"
-            onClick={() => setIsMenuOpen(true)}
-            aria-label="Open menu"
-          >
-            MENU
-          </button>
+          <div className="nav-actions">
+            {user ? (
+              <div className="nav-user-greeting">
+                <Link to="/dashboard" className="btn btn-secondary nav-btn-dash">
+                  DASHBOARD
+                </Link>
+                <button onClick={handleLogoutClick} className="btn btn-logout-text">
+                  LOGOUT
+                </button>
+              </div>
+            ) : (
+              <Link to="/login" className="btn btn-primary nav-btn-login">
+                SIGN IN
+              </Link>
+            )}
+
+            <button 
+              className="menu-trigger-btn"
+              onClick={() => setIsMenuOpen(true)}
+              aria-label="Open menu"
+            >
+              MENU
+            </button>
+          </div>
         </div>
       </header>
 
@@ -49,7 +76,7 @@ const Navbar = () => {
               <h1>SECURE<br/>WEALTH</h1>
             </div>
             <p className="menu-description">
-              Secure 
+              AI-driven wealth management assistant paired with a robust security twin layer. Experience future wealth planning with zero compromise on safety.
             </p>
           </div>
 
@@ -67,16 +94,18 @@ const Navbar = () => {
               </li>
               <li style={{ '--item-index': 2 }}>
                 <span className="plus">+</span>
-                <a href="#work" onClick={() => setIsMenuOpen(false)}>PERFORMANCE</a>
+                {user ? (
+                  <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>DASHBOARD</Link>
+                ) : (
+                  <Link to="/login" onClick={() => setIsMenuOpen(false)}>ACCESS CLIENT PORTAL</Link>
+                )}
               </li>
-              <li style={{ '--item-index': 3 }}>
-                <span className="plus">+</span>
-                <a href="#platform" onClick={() => setIsMenuOpen(false)}>PLATFORM</a>
-              </li>
-              <li style={{ '--item-index': 4 }}>
-                <span className="plus">+</span>
-                <a href="#about" onClick={() => setIsMenuOpen(false)}>ABOUT US</a>
-              </li>
+              {user && (
+                <li style={{ '--item-index': 3 }}>
+                  <span className="plus">+</span>
+                  <a href="#" onClick={handleLogoutClick}>LOGOUT</a>
+                </li>
+              )}
             </ul>
 
             <div className="menu-socials">
