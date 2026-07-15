@@ -13,25 +13,11 @@ import {
   Activity,
   ChevronRight
 } from 'lucide-react';
+import Overview from './modules/Overview';
+import Portfolio from './modules/Portfolio';
 import './Dashboard.css';
 
 // Lazy placehold subcomponents for future phases
-const OverviewPlaceholder = () => (
-  <div className="module-placeholder">
-    <div className="pulse-circle"><Activity size={32} /></div>
-    <h3>Overview Module (Phase 2)</h3>
-    <p>Core wealth scores, recent transactions, and aggregator assets will be integrated next.</p>
-  </div>
-);
-
-const PortfolioPlaceholder = () => (
-  <div className="module-placeholder">
-    <div className="pulse-circle"><Wallet size={32} /></div>
-    <h3>Portfolio & Asset Manager (Phase 2)</h3>
-    <p>Asset rebalancing and manual gold/property tracking forms will be integrated next.</p>
-  </div>
-);
-
 const GoalsPlaceholder = () => (
   <div className="module-placeholder">
     <div className="pulse-circle"><Target size={32} /></div>
@@ -75,8 +61,8 @@ const Dashboard = () => {
   };
 
   const navItems = [
-    { id: 'overview', label: 'Overview', icon: <LayoutDashboard size={20} />, component: <OverviewPlaceholder /> },
-    { id: 'portfolio', label: 'Portfolio', icon: <Wallet size={20} />, component: <PortfolioPlaceholder /> },
+    { id: 'overview', label: 'Overview', icon: <LayoutDashboard size={20} />, component: <Overview /> },
+    { id: 'portfolio', label: 'Portfolio', icon: <Wallet size={20} />, component: <Portfolio /> },
     { id: 'goals', label: 'Goals', icon: <Target size={20} />, component: <GoalsPlaceholder /> },
     { id: 'advisor', label: 'AI Advisor', icon: <BrainCircuit size={20} />, component: <AIAdvisorPlaceholder /> },
     { id: 'security', label: 'Security Twin', icon: <ShieldAlert size={20} />, component: <SecurityTwinPlaceholder /> },
@@ -85,7 +71,7 @@ const Dashboard = () => {
 
   const renderActiveModule = () => {
     const item = navItems.find((x) => x.id === activeTab);
-    return item ? item.component : <OverviewPlaceholder />;
+    return item ? item.component : <Overview />;
   };
 
   return (
