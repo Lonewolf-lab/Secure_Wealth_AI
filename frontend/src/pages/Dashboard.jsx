@@ -17,17 +17,10 @@ import Overview from './modules/Overview';
 import Portfolio from './modules/Portfolio';
 import Goals from './modules/Goals';
 import AIAdvisor from './modules/AIAdvisor';
+import Security from './modules/Security';
 import './Dashboard.css';
 
 // Lazy placehold subcomponents for future phases
-const SecurityTwinPlaceholder = () => (
-  <div className="module-placeholder">
-    <div className="pulse-circle"><ShieldAlert size={32} /></div>
-    <h3>Security Twin Sandbox (Phase 5)</h3>
-    <p>WPRS transaction simulator and security audit logs will be integrated in Phase 5.</p>
-  </div>
-);
-
 const ChatbotPlaceholder = () => (
   <div className="module-placeholder">
     <div className="pulse-circle"><MessageSquareCode size={32} /></div>
@@ -51,7 +44,7 @@ const Dashboard = () => {
     { id: 'portfolio', label: 'Portfolio', icon: <Wallet size={20} />, component: <Portfolio /> },
     { id: 'goals', label: 'Goals', icon: <Target size={20} />, component: <Goals /> },
     { id: 'advisor', label: 'AI Advisor', icon: <BrainCircuit size={20} />, component: <AIAdvisor /> },
-    { id: 'security', label: 'Security Twin', icon: <ShieldAlert size={20} />, component: <SecurityTwinPlaceholder /> },
+    { id: 'security', label: 'Security Twin', icon: <ShieldAlert size={20} />, component: <Security /> },
     { id: 'chat', label: 'AI Chatbot', icon: <MessageSquareCode size={20} />, component: <ChatbotPlaceholder /> },
   ];
 

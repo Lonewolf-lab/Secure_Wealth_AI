@@ -4,6 +4,7 @@ import com.securewealth.dto.request.OTPVerifyRequest;
 import com.securewealth.model.SecurityEvent;
 import com.securewealth.model.TrustedDevice;
 import com.securewealth.model.User;
+import com.securewealth.model.enums.EventDecision;
 import com.securewealth.repository.SecurityEventRepository;
 import com.securewealth.repository.TrustedDeviceRepository;
 import com.securewealth.repository.UserRepository;
@@ -29,7 +30,6 @@ public class SecurityController {
     private final SecurityEventRepository securityEventRepository;
     private final TrustedDeviceRepository trustedDeviceRepository;
     private final OTPSimulationService otpSimulationService;
-
     private final UserRepository userRepository;
 
     public SecurityController(SecurityLogService securityLogService,
@@ -81,6 +81,32 @@ public class SecurityController {
                                                            @RequestParam(defaultValue = "0") int page,
                                                            @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(securityLogService.getAuditLogs(userId, PageRequest.of(page, size)));
+    }
+
+    @Operation(summary = "Log simulated security event")
+    @PostMapping("/log")
+    public ResponseEntity<SecurityEvent> logEvent(@RequestAttribute("X-User-Id") Long userId,
+                                                  @RequestBody Map<String, Object> payload) {
+        User user = userRepository.findById(userId).orElseThrow();
+        
+        String actionType = (String) payload.get("actionType");
+        double riskScore = ((Number) payload.get("riskScore")).doubleValue();
+        String decisionStr = (String) payload.get("decision");
+        String details = (String) payload.get("details");
+        
+        SecurityEvent event = SecurityEvent.builder()
+                .user(user)
+                .actionType(actionType)
+                .wprsScore((int) riskScore)
+                .decision(EventDecision.valueOf(decisionStr.toUpperCase()))
+                .reason(details)
+                .deviceId("simulated_device")
+                .ipAddress("127.0.0.1")
+                .timestamp(LocalDateTime.now())
+                .build();
+                
+        securityEventRepository.save(event);
+        return ResponseEntity.ok(event);
     }
 
     @Operation(summary = "Generate simulated verification OTP")
