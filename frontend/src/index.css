@@ -7,15 +7,15 @@
   --bg-accent: #111111;
   --text-primary: #f8f8f8;
   --text-secondary: #a3a3a3;
-  
+
   /* Primary Neon Accent */
   --accent-color: #00ff88;
   --accent-hover: #00cc6a;
-  
+
   /* Fonts */
   --font-heading: 'Outfit', sans-serif;
   --font-body: 'Inter', sans-serif;
-  
+
   /* Layout utilities */
   --max-width: 1400px;
   --transition-fast: 0.2s ease;
@@ -44,7 +44,12 @@ body {
   overflow-x: hidden;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-heading);
   font-weight: 700;
   line-height: 1.1;

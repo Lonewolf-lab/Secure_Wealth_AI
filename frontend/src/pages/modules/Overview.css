@@ -90,7 +90,6 @@
 
 .gauge-progress {
   stroke-linecap: round;
-  transition: stroke-dashoffset 1s ease-in-out;
 }
 
 .dial-center-text {

@@ -1,20 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
+import { motion } from 'framer-motion';
 import { 
   BrainCircuit, 
-  TrendingUp, 
-  HelpCircle, 
   Sparkles, 
-  PieChart, 
   Calculator,
-  Compass,
-  ArrowRight,
-  TrendingDown,
-  Info,
-  Calendar,
-  AlertCircle
+  Info
 } from 'lucide-react';
 import './AIAdvisor.css';
+
+const containerVariants = {
+  initial: { opacity: 0 },
+  animate: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.04,
+    },
+  },
+};
+
+const cardItemVariants = {
+  initial: { opacity: 0, y: 12 },
+  animate: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] } 
+  },
+};
 
 const AIAdvisor = () => {
   // Personalized Recs State
@@ -69,7 +82,6 @@ const AIAdvisor = () => {
       const port = await api.get('/api/portfolio/');
       setPortfolioData(port);
       if (port) {
-        // Calculate current weights
         runRebalanceMVO(riskScore, port);
       }
     } catch (err) {
@@ -108,7 +120,6 @@ const AIAdvisor = () => {
         }
       }
 
-      // Call Python FastAPI service directly on port 8000
       const response = await fetch('http://localhost:8000/api/rebalance-portfolio', {
         method: 'POST',
         headers: {
@@ -137,7 +148,6 @@ const AIAdvisor = () => {
     setActiveSeries(series);
     setLoadingForecast(true);
     try {
-      // Call Python FastAPI service directly on port 8000
       const response = await fetch(`http://localhost:8000/api/market-forecast/${series}?days=30`);
       if (!response.ok) {
         throw new Error('Forecast offline');
@@ -170,7 +180,6 @@ const AIAdvisor = () => {
     e.preventDefault();
     setSolvingTax(true);
     try {
-      // Fetch user profile age to match model constraints (default 30)
       const age = 30; 
       const response = await fetch('http://localhost:8000/api/tax-saving?regime=new', {
         method: 'POST',
@@ -180,7 +189,7 @@ const AIAdvisor = () => {
         body: JSON.stringify({
           Age: age,
           Annual_Income_INR: parseFloat(grossIncome),
-          Current_Savings_INR: 500000.0, // default tracking
+          Current_Savings_INR: 500000.0,
           Monthly_Disposable_Income_INR: parseFloat(grossIncome) * 0.3 / 12,
           Tax_Bracket: "30%",
           Financial_Goal: "Tax Saving",
@@ -231,13 +240,18 @@ const AIAdvisor = () => {
   const forecastPath = getForecastLine();
 
   return (
-    <div className="advisor-content-wrapper">
+    <motion.div 
+      className="advisor-content-wrapper"
+      variants={containerVariants}
+      initial="initial"
+      animate="animate"
+    >
       
       {/* Upper Grid: AI personalized Recs & Forecast */}
       <div className="advisor-upper-grid">
         
         {/* Personalized Recommendations */}
-        <div className="advisor-card recs-card">
+        <motion.div className="advisor-card recs-card" variants={cardItemVariants}>
           <div className="card-header-plain">
             <h3>AI Wealth Advisor</h3>
             <span className="card-header-icon-badge"><BrainCircuit size={16} /></span>
@@ -272,10 +286,10 @@ const AIAdvisor = () => {
               <p className="no-data-msg">No advisor recommendations generated.</p>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Market Forecasting Panel */}
-        <div className="advisor-card forecast-card">
+        <motion.div className="advisor-card forecast-card" variants={cardItemVariants}>
           <div className="card-header-plain">
             <h3>30-Day Market Predictions</h3>
             <div className="series-selectors">
@@ -293,13 +307,21 @@ const AIAdvisor = () => {
             ) : forecast.length > 0 ? (
               <div className="forecast-visualization-box">
                 <svg viewBox="0 0 500 150" width="100%" height="150" className="svg-networth-chart">
-                  <path d={forecastPath} fill="none" stroke="#00ff88" strokeWidth="2.5" strokeLinecap="round" />
+                  <motion.path 
+                    d={forecastPath} 
+                    fill="none" 
+                    stroke="#10b981" 
+                    strokeWidth="2.5" 
+                    strokeLinecap="round" 
+                    initial={{ pathLength: 0, opacity: 0 }}
+                    animate={{ pathLength: 1, opacity: 1 }}
+                    transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                  />
                   
-                  {/* Min / Max labels */}
                   {forecast.length > 0 && (
                     <>
-                      <circle cx="20" cy="75" r="4" fill="#00ff88" />
-                      <circle cx="480" cy="75" r="4" fill="#00ff88" />
+                      <circle cx="20" cy="75" r="4" fill="#10b981" />
+                      <circle cx="480" cy="75" r="4" fill="#10b981" />
                     </>
                   )}
                 </svg>
@@ -311,7 +333,7 @@ const AIAdvisor = () => {
                   </div>
                   <div className="endpoint-item right">
                     <span>PROJECTED VALUE (30D)</span>
-                    <h4 style={{ color: forecast[forecast.length - 1]?.predicted_value >= forecast[0]?.predicted_value ? '#00ff88' : '#ff3366' }}>
+                    <h4 style={{ color: forecast[forecast.length - 1]?.predicted_value >= forecast[0]?.predicted_value ? '#10b981' : '#ef4444' }}>
                       ₹{forecast[forecast.length - 1]?.predicted_value}
                     </h4>
                   </div>
@@ -325,12 +347,12 @@ const AIAdvisor = () => {
           <div className="forecast-disclaimer-text">
             *Prophet time-series predictions. For informational purposes only.
           </div>
-        </div>
+        </motion.div>
 
       </div>
 
       {/* Middle Grid: MPT Rebalancer */}
-      <div className="advisor-card rebalancer-card-box">
+      <motion.div className="advisor-card rebalancer-card-box" variants={cardItemVariants}>
         <div className="card-header-plain">
           <h3>Mean-Variance Optimization (Markowitz Rebalancer)</h3>
           <div className="risk-slider-container">
@@ -362,7 +384,12 @@ const AIAdvisor = () => {
                       <strong>{weight}%</strong>
                     </div>
                     <div className="weight-bar-track">
-                      <div className="weight-bar-fill" style={{ width: `${weight}%` }}></div>
+                      <motion.div 
+                        className="weight-bar-fill" 
+                        initial={{ width: '0%' }}
+                        animate={{ width: `${weight}%` }}
+                        transition={{ duration: 0.9, ease: 'easeOut' }}
+                      />
                     </div>
                   </div>
                 ))}
@@ -379,7 +406,7 @@ const AIAdvisor = () => {
                 </div>
                 <div className="meta-metric">
                   <span>SHARPE RATIO</span>
-                  <strong style={{ color: '#00ff88' }}>{rebalanceResult.sharpe_ratio}</strong>
+                  <strong style={{ color: '#10b981' }}>{rebalanceResult.sharpe_ratio}</strong>
                 </div>
               </div>
             </div>
@@ -417,10 +444,10 @@ const AIAdvisor = () => {
         ) : (
           <p className="no-data-msg">Rebalancing solver offline.</p>
         )}
-      </div>
+      </motion.div>
 
       {/* Lower Row: Tax savings optimizer */}
-      <div className="advisor-card tax-optimizer-box">
+      <motion.div className="advisor-card tax-optimizer-box" variants={cardItemVariants}>
         <div className="card-header-plain">
           <h3>Section 80C Tax-Saving Optimizer</h3>
         </div>
@@ -520,7 +547,7 @@ const AIAdvisor = () => {
                 </div>
 
                 <div className="net-savings-callout">
-                  Net Tax Savings: <strong style={{ color: '#00ff88' }}>₹{Math.abs(taxRegimeResult.comparison?.old_regime_tax_inr_fully_maxed - taxRegimeResult.comparison?.new_regime_tax_inr).toLocaleString('en-IN')}</strong>
+                  Net Tax Savings: <strong style={{ color: '#10b981' }}>₹{Math.abs(taxRegimeResult.comparison?.old_regime_tax_inr_fully_maxed - taxRegimeResult.comparison?.new_regime_tax_inr).toLocaleString('en-IN')}</strong>
                 </div>
               </div>
             ) : (
@@ -532,9 +559,9 @@ const AIAdvisor = () => {
           </div>
 
         </div>
-      </div>
+      </motion.div>
 
-    </div>
+    </motion.div>
   );
 };
 

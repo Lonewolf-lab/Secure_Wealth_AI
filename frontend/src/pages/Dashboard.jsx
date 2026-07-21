@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, 
   Wallet, 
@@ -10,7 +11,6 @@ import {
   MessageSquareCode, 
   LogOut, 
   User as UserIcon,
-  Activity,
   ChevronRight
 } from 'lucide-react';
 import Overview from './modules/Overview';
@@ -19,6 +19,7 @@ import Goals from './modules/Goals';
 import AIAdvisor from './modules/AIAdvisor';
 import Security from './modules/Security';
 import Chatbot from './modules/Chatbot';
+import AnimatedPage from '../components/AnimatedPage';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -42,7 +43,13 @@ const Dashboard = () => {
 
   const renderActiveModule = () => {
     const item = navItems.find((x) => x.id === activeTab);
-    return item ? item.component : <Overview />;
+    const content = item ? item.component : <Overview />;
+
+    return (
+      <AnimatedPage key={activeTab}>
+        {content}
+      </AnimatedPage>
+    );
   };
 
   return (
@@ -55,18 +62,41 @@ const Dashboard = () => {
 
         <nav className="sidebar-nav">
           <ul className="nav-list">
-            {navItems.map((item) => (
-              <li key={item.id}>
-                <button
-                  className={`nav-item-btn ${activeTab === item.id ? 'active' : ''}`}
-                  onClick={() => setActiveTab(item.id)}
-                >
-                  <span className="nav-icon">{item.icon}</span>
-                  <span className="nav-label">{item.label}</span>
-                  {activeTab === item.id && <span className="nav-active-indicator"><ChevronRight size={16} /></span>}
-                </button>
-              </li>
-            ))}
+            {navItems.map((item) => {
+              const isActive = activeTab === item.id;
+              return (
+                <li key={item.id} style={{ position: 'relative' }}>
+                  <button
+                    className={`nav-item-btn ${isActive ? 'active' : ''}`}
+                    onClick={() => setActiveTab(item.id)}
+                    style={{ position: 'relative', zIndex: 2 }}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeTabPill"
+                        className="nav-active-pill"
+                        transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          backgroundColor: 'rgba(6, 182, 212, 0.12)',
+                          borderRadius: '8px',
+                          borderLeft: '3px solid var(--accent-primary)',
+                          zIndex: -1,
+                        }}
+                      />
+                    )}
+                    <span className="nav-icon">{item.icon}</span>
+                    <span className="nav-label">{item.label}</span>
+                    {isActive && (
+                      <span className="nav-active-indicator">
+                        <ChevronRight size={16} />
+                      </span>
+                    )}
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         </nav>
 
@@ -83,14 +113,14 @@ const Dashboard = () => {
         <header className="workspace-header">
           <div className="header-title-box">
             <h1>{navItems.find((x) => x.id === activeTab)?.label}</h1>
-            <p className="header-date"> Punjab & Sind Bank AI Wealth Portal</p>
+            <p className="header-date">Punjab & Sind Bank AI Wealth Portal</p>
           </div>
 
           {/* User Profile Info */}
           <div className="header-profile-box">
             <div className="profile-details">
-              <span className="profile-name">{user?.name}</span>
-              <span className="profile-role">{user?.role}</span>
+              <span className="profile-name">{user?.name || 'Bank Client'}</span>
+              <span className="profile-role">{user?.role || 'CLIENT'}</span>
             </div>
             <div className="profile-avatar">
               <UserIcon size={20} />
@@ -98,10 +128,12 @@ const Dashboard = () => {
           </div>
         </header>
 
-        {/* Dynamic Module Panel */}
+        {/* Dynamic Module Panel with AnimatePresence */}
         <section className="workspace-panel">
-          <div className="panel-inner">
-            {renderActiveModule()}
+          <div className="panel-inner" style={{ overflow: 'hidden' }}>
+            <AnimatePresence mode="wait">
+              {renderActiveModule()}
+            </AnimatePresence>
           </div>
         </section>
       </main>

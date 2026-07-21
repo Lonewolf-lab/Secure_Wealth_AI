@@ -37,13 +37,43 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--accent-color);
   background: rgba(0, 255, 136, 0.08);
   border: 1px solid rgba(0, 255, 136, 0.15);
-  padding: 0.3rem 0.7rem;
+  padding: 0.35rem 0.8rem;
   border-radius: 6px;
+}
+
+/* Pulse ring dot animation */
+.pulse-ring-container {
+  position: relative;
+}
+
+.pulse-ring-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  box-shadow: 0 0 8px var(--accent-color);
+  animation: pulse-ring-glow 2s infinite ease-in-out;
+}
+
+@keyframes pulse-ring-glow {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 1;
+    box-shadow: 0 0 14px var(--accent-color);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
 }
 
 /* Fraud Scanner Specifics */
@@ -52,6 +82,7 @@
   grid-template-columns: 1.1fr 0.9fr;
   gap: 3rem;
   margin-top: 1rem;
+  align-items: start;
 }
 
 @media (max-width: 992px) {
@@ -75,20 +106,21 @@
 
 .scanner-inputs-form label {
   font-family: var(--font-heading);
-  font-size: 0.72rem;
+  font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 1px;
   color: var(--text-secondary);
 }
 
 .scanner-inputs-form input, .scanner-inputs-form select {
-  padding: 0.9rem 1.1rem;
+  padding: 1rem 1.2rem;
   background: rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   color: #fff;
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: 1rem;
+  font-weight: 500;
   transition: all var(--transition-fast);
 }
 
@@ -101,47 +133,106 @@
 .btn-scan-tx {
   padding: 1.1rem !important;
   border-radius: 12px !important;
-  font-size: 0.9rem !important;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
   display: flex;
-  gap: 0.5rem;
+  gap: 0.6rem;
   align-items: center;
   justify-content: center;
   margin-top: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  transform: none !important;
+}
+
+.scanning-btn-active {
+  background: var(--accent-color) !important;
+  color: #000 !important;
+}
+
+.btn-spinner-icon {
+  animation: spin-btn 1s linear infinite;
+}
+
+@keyframes spin-btn {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /* Results Pane */
 .scanner-results-pane {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  min-height: 250px;
+  height: 380px;
+  min-height: 380px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+/* Skeleton Loading */
+.scanner-loading-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.skeleton-card-line {
+  height: 24px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.02) 25%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.02) 75%);
+  background-size: 200% 100%;
+  animation: sim-skeleton-shimmer 1.5s infinite;
+}
+
+.skeleton-card-box {
+  border-radius: 16px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.02) 25%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.02) 75%);
+  background-size: 200% 100%;
+  animation: sim-skeleton-shimmer 1.5s infinite;
+}
+
+.skeleton-card-box.gauge {
+  height: 120px;
+}
+
+.skeleton-card-box.banner {
+  height: 100px;
+}
+
+@keyframes sim-skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 .fraud-scan-result-card {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  background: rgba(255, 255, 255, 0.01);
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 16px;
   padding: 1.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 
 .result-header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
   font-weight: 600;
 }
 
 .risk-badge-level {
   font-family: var(--font-heading);
-  font-size: 0.65rem;
+  font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.5px;
-  padding: 0.2rem 0.5rem;
+  padding: 0.25rem 0.6rem;
   border-radius: 4px;
   text-transform: uppercase;
 }
@@ -149,16 +240,19 @@
 .risk-badge-level.low {
   background: rgba(0, 255, 136, 0.08);
   color: #00ff88;
+  border: 1px solid rgba(0, 255, 136, 0.2);
 }
 
 .risk-badge-level.medium {
   background: rgba(255, 183, 0, 0.08);
   color: #ffb700;
+  border: 1px solid rgba(255, 183, 0, 0.2);
 }
 
 .risk-badge-level.high {
   background: rgba(255, 51, 102, 0.08);
   color: #ff3366;
+  border: 1px solid rgba(255, 51, 102, 0.2);
 }
 
 .risk-score-gauge-box {
@@ -166,20 +260,20 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1rem 0;
-  border: 1px solid rgba(255, 255, 255, 0.02);
+  padding: 1.2rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.04);
   border-radius: 12px;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.25);
 }
 
 .gauge-score-value {
-  font-size: 2.2rem;
+  font-size: 2.4rem;
   font-weight: 900;
   letter-spacing: -1px;
 }
 
 .gauge-label {
-  font-size: 0.72rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
   margin-top: 0.2rem;
 }
@@ -191,54 +285,54 @@
 .verdict-warning {
   display: flex;
   gap: 1rem;
-  padding: 1rem 1.2rem;
+  padding: 1.1rem 1.3rem;
   background: rgba(255, 51, 102, 0.04);
-  border: 1px solid rgba(255, 51, 102, 0.12);
+  border: 1px solid rgba(255, 51, 102, 0.15);
   border-radius: 12px;
   color: #ff3366;
 }
 
 .verdict-warning h5 {
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   font-weight: 700;
   margin-bottom: 0.25rem;
   color: #fff;
 }
 
 .verdict-warning p {
-  font-size: 0.82rem;
+  font-size: 0.88rem;
   color: var(--text-secondary);
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .verdict-success {
   display: flex;
   gap: 1rem;
-  padding: 1rem 1.2rem;
+  padding: 1.1rem 1.3rem;
   background: rgba(0, 255, 136, 0.03);
-  border: 1px solid rgba(0, 255, 136, 0.12);
+  border: 1px solid rgba(0, 255, 136, 0.15);
   border-radius: 12px;
   color: #00ff88;
 }
 
 .verdict-success h5 {
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   font-weight: 700;
   margin-bottom: 0.25rem;
   color: #fff;
 }
 
 .verdict-success p {
-  font-size: 0.82rem;
+  font-size: 0.88rem;
   color: var(--text-secondary);
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .audit-decision-indicator {
   text-align: center;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
   border-top: 1px solid rgba(255, 255, 255, 0.03);
   padding-top: 0.8rem;
@@ -256,13 +350,13 @@
 
 .input-group-row input {
   flex-grow: 1;
-  padding: 0.8rem 1.1rem;
+  padding: 0.9rem 1.2rem;
   background: rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   color: #fff;
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: 0.95rem;
 }
 
 .input-group-row input:focus {
@@ -271,14 +365,18 @@
 }
 
 .btn-add-device {
-  padding: 0.8rem 1.2rem !important;
+  padding: 0.9rem 1.3rem !important;
   border-radius: 10px !important;
-  font-size: 0.82rem !important;
+  font-size: 0.9rem !important;
+  font-weight: 700 !important;
   flex-shrink: 0;
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
 }
 
 .devices-list-wrapper {
-  max-height: 180px;
+  max-height: 200px;
   overflow-y: auto;
   padding-right: 0.5rem;
 }
@@ -293,15 +391,22 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 0.8rem 1.2rem;
+  padding: 0.9rem 1.3rem;
   background: rgba(255, 255, 255, 0.01);
   border: 1px solid rgba(255, 255, 255, 0.03);
   border-radius: 12px;
+  transition: all var(--transition-fast);
+}
+
+.device-item-card:hover {
+  background: rgba(255, 255, 255, 0.025);
+  border-color: rgba(255, 255, 255, 0.08);
+  transform: translateX(4px);
 }
 
 .device-icon-box {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.04);
@@ -316,26 +421,26 @@
 }
 
 .device-details h5 {
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: #fff;
   margin: 0 0 0.15rem 0;
 }
 
 .device-details span {
-  font-size: 0.72rem;
+  font-size: 0.82rem;
   color: var(--text-secondary);
   font-family: var(--font-heading);
 }
 
 .device-status-pill {
   font-family: var(--font-heading);
-  font-size: 0.58rem;
+  font-size: 0.72rem;
   font-weight: 800;
   color: var(--accent-color);
   background: rgba(0, 255, 136, 0.08);
   border: 1px solid rgba(0, 255, 136, 0.15);
-  padding: 0.15rem 0.4rem;
+  padding: 0.2rem 0.5rem;
   border-radius: 4px;
   letter-spacing: 0.5px;
 }
@@ -355,33 +460,37 @@
 
 .otp-controls-container label {
   font-family: var(--font-heading);
-  font-size: 0.7rem;
+  font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 1px;
   color: var(--text-secondary);
 }
 
 .otp-controls-container select, .otp-controls-container input {
-  padding: 0.8rem 1.1rem;
+  padding: 0.9rem 1.2rem;
   background: rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   color: #fff;
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   flex-grow: 1;
 }
 
 .btn-otp-gen {
-  padding: 0.8rem 1.2rem !important;
+  padding: 0.9rem 1.3rem !important;
   border-radius: 10px !important;
-  font-size: 0.82rem !important;
+  font-size: 0.9rem !important;
+  font-weight: 700 !important;
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
 }
 
 .otp-simulated-notification {
   display: flex;
   gap: 0.6rem;
-  padding: 0.8rem 1.2rem;
+  padding: 0.9rem 1.3rem;
   background: rgba(0, 229, 255, 0.04);
   border: 1px solid rgba(0, 229, 255, 0.12);
   border-radius: 10px;
@@ -390,7 +499,7 @@
 }
 
 .otp-simulated-notification p {
-  font-size: 0.82rem;
+  font-size: 0.88rem;
   font-weight: 600;
   margin: 0;
 }
@@ -404,8 +513,12 @@
   align-items: center;
   gap: 0.5rem;
   color: var(--accent-color);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
+  background: rgba(0, 255, 136, 0.03);
+  border: 1px solid rgba(0, 255, 136, 0.15);
+  padding: 0.8rem 1.2rem;
+  border-radius: 10px;
 }
 
 .otp-failed {
@@ -413,8 +526,12 @@
   align-items: center;
   gap: 0.5rem;
   color: #ff3366;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
+  background: rgba(255, 51, 102, 0.04);
+  border: 1px solid rgba(255, 51, 102, 0.15);
+  padding: 0.8rem 1.2rem;
+  border-radius: 10px;
 }
 
 /* Security Audit Logs Table */
@@ -426,11 +543,11 @@
 .btn-refresh-logs {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 0.35rem 0.8rem;
+  padding: 0.4rem 0.9rem;
   border-radius: 8px;
   color: var(--text-secondary);
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -458,7 +575,7 @@
 
 .logs-table th {
   font-family: var(--font-heading);
-  font-size: 0.72rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: var(--text-secondary);
   letter-spacing: 1px;
@@ -473,8 +590,16 @@
 .logs-table td {
   padding: 0.9rem 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.02);
-  font-size: 0.85rem;
+  font-size: 0.92rem;
   color: var(--text-primary);
+}
+
+.logs-table tr {
+  transition: background-color var(--transition-fast);
+}
+
+.logs-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .logs-table tr:last-child td {
@@ -486,7 +611,7 @@
   align-items: center;
   gap: 0.4rem;
   color: var(--text-secondary);
-  font-size: 0.78rem;
+  font-size: 0.85rem;
 }
 
 .log-risk-val {
@@ -495,10 +620,10 @@
 
 .log-decision-badge {
   font-family: var(--font-heading);
-  font-size: 0.65rem;
+  font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.5px;
-  padding: 0.2rem 0.5rem;
+  padding: 0.2rem 0.55rem;
   border-radius: 4px;
   text-transform: uppercase;
   display: inline-block;
@@ -525,7 +650,7 @@
 
 .log-details-cell {
   color: var(--text-secondary);
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   max-width: 300px;
   overflow: hidden;
   text-overflow: ellipsis;

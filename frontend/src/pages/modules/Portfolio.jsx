@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
+import { motion } from 'framer-motion';
+import CountUp from '../../components/CountUp';
 import { 
   Plus, 
   Trash2, 
@@ -9,12 +11,30 @@ import {
   Coins, 
   Coins as OtherIcon, 
   DollarSign, 
-  PlusCircle, 
   X,
-  ShieldCheck,
-  Calendar
+  ShieldCheck
 } from 'lucide-react';
 import './Portfolio.css';
+
+const containerVariants = {
+  initial: { opacity: 0 },
+  animate: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.04,
+    },
+  },
+};
+
+const cardItemVariants = {
+  initial: { opacity: 0, y: 12 },
+  animate: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] } 
+  },
+};
 
 const Portfolio = () => {
   const [portfolio, setPortfolio] = useState(null);
@@ -69,7 +89,6 @@ const Portfolio = () => {
         notes: notes || 'Manual asset logging'
       });
 
-      // Reset form & reload
       setAssetName('');
       setAssetType('PROPERTY');
       setAssetValue('');
@@ -77,7 +96,6 @@ const Portfolio = () => {
       setNotes('');
       setShowAddForm(false);
       
-      // Refresh portfolio details
       await fetchPortfolioData();
     } catch (err) {
       console.error('Failed to add manual asset', err);
@@ -158,7 +176,6 @@ const Portfolio = () => {
     const height = 150;
     const padding = 20;
     
-    // Bottom points to close path
     const startX = padding;
     const endX = width - padding;
     return `${linePath} L ${endX} ${height} L ${startX} ${height} Z`;
@@ -168,12 +185,20 @@ const Portfolio = () => {
   const fillPath = getChartFillPath(linePath);
 
   return (
-    <div className="portfolio-content">
+    <motion.div 
+      className="portfolio-content"
+      variants={containerVariants}
+      initial="initial"
+      animate="animate"
+    >
       {/* Chart & Summary Row */}
       <div className="portfolio-main-grid">
         
         {/* Net Worth Chart */}
-        <div className="portfolio-card chart-card">
+        <motion.div 
+          className="portfolio-card chart-card" 
+          variants={cardItemVariants}
+        >
           <div className="chart-header-box">
             <div>
               <span>PORTFOLIO VALUATION HISTORY</span>
@@ -189,14 +214,29 @@ const Portfolio = () => {
               <svg className="svg-networth-chart" viewBox="0 0 500 150" width="100%" height="150">
                 <defs>
                   <linearGradient id="chartGlow" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#00ff88" stopOpacity="0.25"/>
-                    <stop offset="100%" stopColor="#00ff88" stopOpacity="0"/>
+                    <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.35"/>
+                    <stop offset="100%" stopColor="#06b6d4" stopOpacity="0"/>
                   </linearGradient>
                 </defs>
                 {/* Gradient area */}
-                <path d={fillPath} fill="url(#chartGlow)" />
-                {/* Glowing line */}
-                <path d={linePath} fill="none" stroke="#00ff88" strokeWidth="3" strokeLinecap="round" />
+                <motion.path 
+                  d={fillPath} 
+                  fill="url(#chartGlow)"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 1, delay: 0.6 }}
+                />
+                {/* Glowing line draw animation */}
+                <motion.path 
+                  d={linePath} 
+                  fill="none" 
+                  stroke="#06b6d4" 
+                  strokeWidth="3" 
+                  strokeLinecap="round" 
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+                />
                 
                 {/* Interactive Points */}
                 {history.map((pt, idx) => {
@@ -211,10 +251,16 @@ const Portfolio = () => {
                   const y = height - ((pt.value - minVal) / range) * (height - padding * 2) - padding;
 
                   return (
-                    <g key={idx} className="chart-marker-group">
-                      <circle cx={x} cy={y} r="4" fill="#00ff88" className="marker-dot" />
-                      <circle cx={x} cy={y} r="8" fill="#00ff88" opacity="0.2" className="marker-glow" />
-                    </g>
+                    <motion.g 
+                      key={idx} 
+                      className="chart-marker-group"
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.6 + idx * 0.04, duration: 0.3 }}
+                    >
+                      <circle cx={x} cy={y} r="4" fill="#06b6d4" className="marker-dot" />
+                      <circle cx={x} cy={y} r="8" fill="#06b6d4" opacity="0.3" className="marker-glow" />
+                    </motion.g>
                   );
                 })}
               </svg>
@@ -228,13 +274,18 @@ const Portfolio = () => {
               <span key={idx} className="xaxis-label">{pt.month}</span>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Breakdown Summary Sidebar */}
-        <div className="portfolio-summary-sidebar">
+        <motion.div 
+          className="portfolio-summary-sidebar" 
+          variants={cardItemVariants}
+        >
           <div className="summary-val-box">
             <span>Net Asset Valuation</span>
-            <h1>₹{totalValue?.toLocaleString('en-IN') || '0'}</h1>
+            <h1>
+              <CountUp end={totalValue || 0} prefix="₹" duration={1200} />
+            </h1>
             <p><ShieldCheck size={14} /> Synchronized with PSB Security Twin</p>
           </div>
 
@@ -248,7 +299,7 @@ const Portfolio = () => {
               <strong>₹{assets.reduce((acc, current) => acc + (current.currentValue || 0), 0).toLocaleString('en-IN')}</strong>
             </div>
           </div>
-        </div>
+        </motion.div>
 
       </div>
 
@@ -256,7 +307,10 @@ const Portfolio = () => {
       <div className="assets-details-grid">
         
         {/* Manual Assets List */}
-        <div className="portfolio-card assets-card">
+        <motion.div 
+          className="portfolio-card assets-card" 
+          variants={cardItemVariants}
+        >
           <div className="panel-header-action">
             <h3>Manual Tangible Assets</h3>
             <button 
@@ -310,10 +364,13 @@ const Portfolio = () => {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Financial Investments List */}
-        <div className="portfolio-card investments-card">
+        <motion.div 
+          className="portfolio-card investments-card" 
+          variants={cardItemVariants}
+        >
           <div className="panel-header-action">
             <h3>Active Financial Investments</h3>
           </div>
@@ -357,7 +414,7 @@ const Portfolio = () => {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
 
       </div>
 
@@ -437,7 +494,7 @@ const Portfolio = () => {
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };
 
