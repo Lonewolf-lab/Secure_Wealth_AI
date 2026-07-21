@@ -12,7 +12,8 @@ import {
   XCircle,
   RefreshCw,
   Clock,
-  Plus
+  Plus,
+  Info
 } from 'lucide-react';
 import './Security.css';
 
