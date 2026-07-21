@@ -1,6 +1,7 @@
 .services-section {
   padding: 8rem 0;
-  background-color: var(--bg-primary); /* Keeping it dark for the overall theme, but adapting the card style */
+  background-color: var(--bg-primary);
+  /* Keeping it dark for the overall theme, but adapting the card style */
   border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -56,8 +57,10 @@
   gap: 3rem;
   align-items: flex-start;
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-top: 1px solid rgba(255, 255, 255, 0.15); /* Highlight the top edge */
-  box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.8); /* Shadow for 3D depth between layers */
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  /* Highlight the top edge */
+  box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.8);
+  /* Shadow for 3D depth between layers */
   opacity: 0;
   transform: translateY(40px);
   transition: opacity 0.8s ease, transform 0.8s ease, border-color 0.3s ease;
@@ -198,7 +201,7 @@
     padding: 3rem 2rem;
     gap: 2rem;
   }
-  
+
   .service-arrow-wrapper {
     width: 100%;
     justify-content: flex-start;
@@ -210,11 +213,11 @@
   .title-services {
     padding-left: 0;
   }
-  
+
   .service-horizontal-card {
     padding: 2.5rem 1.5rem;
   }
-  
+
   .service-title-large {
     font-size: 2.5rem;
   }

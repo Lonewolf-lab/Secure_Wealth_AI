@@ -1,20 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
-import { 
-  Target, 
-  Plus, 
-  TrendingUp, 
-  Calendar, 
-  Sparkles, 
-  HelpCircle, 
-  Play, 
-  CheckCircle, 
-  ChevronRight,
+import { motion, AnimatePresence } from 'framer-motion';
+import CountUp from '../../components/CountUp';
+import {
+  Target,
+  Plus,
+  TrendingUp,
+  Calendar,
+  Sparkles,
+  HelpCircle,
+  Play,
+  CheckCircle,
   Shield,
   Activity,
-  X
+  X,
+  RefreshCw,
+  ArrowUpRight
 } from 'lucide-react';
 import './Goals.css';
+
+const containerVariants = {
+  initial: { opacity: 0 },
+  animate: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.04,
+    },
+  },
+};
+
+const cardItemVariants = {
+  initial: { opacity: 0, y: 12 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] }
+  },
+};
 
 const Goals = () => {
   const [goals, setGoals] = useState([]);
@@ -49,7 +72,6 @@ const Goals = () => {
       const res = await api.get('/api/goals');
       setGoals(res || []);
       if (res && res.length > 0) {
-        // Auto-select first goal for projections
         handleSelectGoal(res[0]);
       }
       setError(null);
@@ -93,7 +115,6 @@ const Goals = () => {
         category: category
       });
 
-      // Clear & Close
       setGoalName('');
       setTargetAmt('');
       setSavedAmt('');
@@ -101,10 +122,8 @@ const Goals = () => {
       setCategory('RETIREMENT');
       setShowAddForm(false);
 
-      // Refresh list
       const res = await api.get('/api/goals');
       setGoals(res || []);
-      // Select the newly created goal
       if (newGoal) {
         handleSelectGoal(newGoal);
       }
@@ -119,6 +138,8 @@ const Goals = () => {
   const handleRunSimulation = async (e) => {
     e.preventDefault();
     setSimulating(true);
+    setSimResult(null);
+
     try {
       const payload = {
         scenarioName,
@@ -128,7 +149,11 @@ const Goals = () => {
       if (selectedSimGoalId) {
         payload.goalId = parseInt(selectedSimGoalId);
       }
-      const res = await api.post('/api/simulator/what-if', payload);
+
+      const [res] = await Promise.all([
+        api.post('/api/simulator/what-if', payload),
+        new Promise(resolve => setTimeout(resolve, 800))
+      ]);
       setSimResult(res);
     } catch (err) {
       console.error('Failed to run simulation', err);
@@ -161,13 +186,18 @@ const Goals = () => {
   }
 
   return (
-    <div className="goals-content-wrapper">
-      
+    <motion.div
+      className="goals-content-wrapper"
+      variants={containerVariants}
+      initial="initial"
+      animate="animate"
+    >
+
       {/* Upper Section: Goals List & Details Projection Panel */}
       <div className="goals-main-grid">
-        
+
         {/* Left: Goals milestones list */}
-        <div className="goals-list-card">
+        <motion.div className="goals-list-card" variants={cardItemVariants}>
           <div className="card-header-action">
             <h3>Milestone Targets</h3>
             <button className="btn btn-secondary btn-log-goal" onClick={() => setShowAddForm(true)}>
@@ -183,8 +213,8 @@ const Goals = () => {
                   const isActive = selectedGoal?.id === g.id;
 
                   return (
-                    <div 
-                      key={g.id} 
+                    <div
+                      key={g.id}
                       className={`goal-item-card ${isActive ? 'active' : ''}`}
                       onClick={() => handleSelectGoal(g)}
                     >
@@ -202,7 +232,12 @@ const Goals = () => {
                           <strong>{pct.toFixed(0)}%</strong>
                         </div>
                         <div className="progress-bar-bg">
-                          <div className="progress-bar-fill" style={{ width: `${pct}%` }}></div>
+                          <motion.div
+                            className="progress-bar-fill"
+                            initial={{ width: '0%' }}
+                            animate={{ width: `${pct}%` }}
+                            transition={{ duration: 1.1, ease: 'easeOut' }}
+                          />
                         </div>
                         <div className="progress-amounts-row">
                           <span>₹{g.currentSaved?.toLocaleString('en-IN')}</span>
@@ -223,10 +258,10 @@ const Goals = () => {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Right: Projection Details */}
-        <div className="goals-projection-card">
+        <motion.div className="goals-projection-card" variants={cardItemVariants}>
           <div className="card-header-plain">
             <h3>AI Goal Projection Pathway</h3>
           </div>
@@ -248,11 +283,13 @@ const Goals = () => {
                   <div className="projection-metrics-grid">
                     <div className="proj-metric-item">
                       <span>PROJECTED CORPUS</span>
-                      <h3>₹{projection.projectedAmountAtDeadline?.toLocaleString('en-IN') || '0'}</h3>
+                      <h3 className="proj-corpus-number">
+                        <CountUp end={projection.projectedAmountAtDeadline || 0} prefix="₹" duration={1200} />
+                      </h3>
                     </div>
                     <div className="proj-metric-item">
                       <span>FORECAST STATUS</span>
-                      <h3 className="status-on-track" style={{ color: projection.status === 'ON_TRACK' ? '#00ff88' : '#ffb700' }}>
+                      <h3 className="proj-status-badge" style={{ color: projection.status === 'ON_TRACK' ? '#10b981' : '#f59e0b' }}>
                         {projection.status?.replace('_', ' ')}
                       </h3>
                     </div>
@@ -275,7 +312,7 @@ const Goals = () => {
                         <strong>₹{selectedGoal.currentSaved?.toLocaleString('en-IN')}</strong>
                       </div>
                     </div>
-                    
+
                     <div className="path-connector"></div>
 
                     <div className="path-row end">
@@ -301,12 +338,12 @@ const Goals = () => {
               <p>Select a milestone card on the left to review its future compounding pathway projections.</p>
             </div>
           )}
-        </div>
+        </motion.div>
 
       </div>
 
       {/* Lower Section: What-If Monte Carlo Simulator */}
-      <div className="simulator-card-box">
+      <motion.div className="simulator-card-box" variants={cardItemVariants}>
         <div className="card-header-plain">
           <h3>Monte Carlo What-If Simulation Sandbox</h3>
           <span className="subtitle-tag"><Shield size={14} /> Deterministic Compounding</span>
@@ -317,11 +354,11 @@ const Goals = () => {
           <form onSubmit={handleRunSimulation} className="simulator-controls-form">
             <div className="form-group">
               <label>SCENARIO NAME</label>
-              <input 
-                type="text" 
-                value={scenarioName} 
-                onChange={(e) => setScenarioName(e.target.value)} 
-                placeholder="e.g. SIP Compounding" 
+              <input
+                type="text"
+                value={scenarioName}
+                onChange={(e) => setScenarioName(e.target.value)}
+                placeholder="e.g. SIP Compounding"
                 required
               />
             </div>
@@ -338,11 +375,11 @@ const Goals = () => {
 
               <div className="form-group">
                 <label>AMOUNT (INR)</label>
-                <input 
-                  type="number" 
-                  value={simulateAmount} 
-                  onChange={(e) => setSimulateAmount(e.target.value)} 
-                  placeholder="₹ Amount" 
+                <input
+                  type="number"
+                  value={simulateAmount}
+                  onChange={(e) => setSimulateAmount(e.target.value)}
+                  placeholder="₹ Amount"
                   required
                 />
               </div>
@@ -358,60 +395,135 @@ const Goals = () => {
               </select>
             </div>
 
-            <button type="submit" className="btn btn-primary btn-run-sim" disabled={simulating}>
-              <Play size={16} fill="#000" /> {simulating ? 'COMPUTING SIMULATIONS...' : 'RUN MONTE CARLO'}
-            </button>
+            {/* Zero-Layout-Shift Button */}
+            <motion.button
+              type="submit"
+              className={`btn btn-primary btn-run-sim ${simulating ? 'simulating-btn-active' : ''}`}
+              disabled={simulating}
+              animate={simulating ? {
+                boxShadow: [
+                  "0 0 0px rgba(0, 255, 136, 0.4)",
+                  "0 0 24px rgba(0, 255, 136, 0.8)",
+                  "0 0 0px rgba(0, 255, 136, 0.4)"
+                ]
+              } : {}}
+              transition={simulating ? { repeat: Infinity, duration: 1 } : {}}
+            >
+              {simulating ? (
+                <>
+                  <RefreshCw size={16} className="btn-spinner-icon" />
+                  <span>COMPUTING MONTE CARLO...</span>
+                </>
+              ) : (
+                <>
+                  <Play size={16} fill="#000" />
+                  <span>RUN MONTE CARLO</span>
+                </>
+              )}
+            </motion.button>
           </form>
 
-          {/* Results Output Pane */}
+          {/* Results Output Pane - Services Hero Card Style */}
           <div className="simulator-results-panel">
-            {simResult ? (
-              <div className="sim-results-output">
-                <div className="sim-summary-header">
-                  <div className="sim-success-badge">
-                    <CheckCircle size={18} />
-                    <span>SUCCESS PROBABILITY</span>
-                    <strong>{simResult.successProbability}%</strong>
-                  </div>
-                </div>
+            <AnimatePresence mode="wait">
+              {simulating ? (
+                <motion.div
+                  key="sim-loading"
+                  className="sim-cards-loading-skeleton"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <div className="skeleton-sim-card success"></div>
+                  <div className="skeleton-sim-card year"></div>
+                  <div className="skeleton-sim-card year"></div>
+                </motion.div>
+              ) : simResult ? (
+                <motion.div
+                  key="sim-results"
+                  className="sim-results-cards-container"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  {/* Success Probability Card - Services Style */}
+                  <motion.div
+                    className="service-style-card success-card"
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: 'easeOut' }}
+                  >
+                    <span className="card-index-num">01</span>
+                    <div className="card-main-content">
+                      <div className="card-top-row">
+                        <h4 className="card-title-large">Success Probability</h4>
+                        <div className="card-arrow-circle">
+                          <ArrowUpRight size={16} />
+                        </div>
+                      </div>
+                      <div className="card-hero-metric">
+                        <CountUp end={simResult.successProbability || 0} suffix="%" duration={1000} />
+                      </div>
+                      <div className="card-pill-tags">
+                        <span className="card-pill-tag highlight">High Confidence</span>
+                        <span className="card-pill-tag">1,000 Iterations</span>
+                        <span className="card-pill-tag">12% Returns</span>
+                      </div>
+                    </div>
+                  </motion.div>
 
-                <div className="sim-projections-table-wrapper">
-                  <table className="sim-table">
-                    <thead>
-                      <tr>
-                        <th>YEARS</th>
-                        <th>P10 (PESSIMISTIC)</th>
-                        <th>P50 (MEDIAN)</th>
-                        <th>P90 (OPTIMISTIC)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {simResult.projectedNetWorth?.map((row, idx) => (
-                        <tr key={idx}>
-                          <td><strong>{row.year} Years</strong></td>
-                          <td>₹{row.p10?.toLocaleString('en-IN')}</td>
-                          <td className="median-cell">₹{row.p50?.toLocaleString('en-IN')}</td>
-                          <td>₹{row.p90?.toLocaleString('en-IN')}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                  {/* Milestone Cards - Services Style */}
+                  {simResult.projectedNetWorth?.map((row, idx) => (
+                    <motion.div
+                      key={idx}
+                      className="service-style-card year-card"
+                      initial={{ opacity: 0, y: 18 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.35, delay: 0.08 * (idx + 1), ease: 'easeOut' }}
+                    >
+                      <span className="card-index-num">0{idx + 2}</span>
+                      <div className="card-main-content">
+                        <div className="card-top-row">
+                          <h4 className="card-title-large">{row.year} Years Compounding</h4>
+                          <div className="card-arrow-circle">
+                            <ArrowUpRight size={16} />
+                          </div>
+                        </div>
+                        <div className="card-pill-tags metrics-pills">
+                          <div className="card-pill-tag">
+                            <span>P10 (Pessimistic): </span>
+                            <strong>₹{row.p10?.toLocaleString('en-IN')}</strong>
+                          </div>
+                          <div className="card-pill-tag highlight">
+                            <span>P50 (Median): </span>
+                            <strong className="median-text">
+                              <CountUp end={row.p50 || 0} prefix="₹" duration={1000} />
+                            </strong>
+                          </div>
+                          <div className="card-pill-tag">
+                            <span>P90 (Optimistic): </span>
+                            <strong>₹{row.p90?.toLocaleString('en-IN')}</strong>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
 
-                <p className="sim-verdict-note">
-                  *Based on 1,000 simulated iterations at 12% average returns and 8% standard deviation.
-                </p>
-              </div>
-            ) : (
-              <div className="empty-panel sim-placeholder">
-                <HelpCircle size={32} />
-                <h5>Simulation Results</h5>
-                <p>Run the Monte Carlo solver to project future net worth compounding ranges under the selected scenario variables.</p>
-              </div>
-            )}
+                  <p className="sim-verdict-note">
+                    *Based on 1,000 simulated iterations at 12% average returns and 8% standard deviation.
+                  </p>
+                </motion.div>
+              ) : (
+                <div className="empty-panel sim-placeholder">
+                  <HelpCircle size={32} />
+                  <h5>Simulation Results</h5>
+                  <p>Run the Monte Carlo solver to project future net worth compounding ranges under the selected scenario variables.</p>
+                </div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Add Goal Modal */}
       {showAddForm && (
@@ -423,16 +535,16 @@ const Goals = () => {
                 <X size={20} />
               </button>
             </div>
-            
+
             <form onSubmit={handleCreateGoal} className="goal-form">
               <div className="form-group">
                 <label>MILESTONE NAME</label>
-                <input 
-                  type="text" 
-                  value={goalName} 
-                  onChange={(e) => setGoalName(e.target.value)} 
+                <input
+                  type="text"
+                  value={goalName}
+                  onChange={(e) => setGoalName(e.target.value)}
                   placeholder="e.g. Retirement Corpus or Home Fund"
-                  required 
+                  required
                 />
               </div>
 
@@ -451,12 +563,12 @@ const Goals = () => {
 
                 <div className="form-group">
                   <label>TARGET VALUE (INR)</label>
-                  <input 
-                    type="number" 
-                    value={targetAmt} 
-                    onChange={(e) => setTargetAmt(e.target.value)} 
+                  <input
+                    type="number"
+                    value={targetAmt}
+                    onChange={(e) => setTargetAmt(e.target.value)}
                     placeholder="₹ Target Amount"
-                    required 
+                    required
                   />
                 </div>
               </div>
@@ -464,28 +576,28 @@ const Goals = () => {
               <div className="form-row">
                 <div className="form-group">
                   <label>CURRENT SAVED AMOUNT (INR)</label>
-                  <input 
-                    type="number" 
-                    value={savedAmt} 
-                    onChange={(e) => setSavedAmt(e.target.value)} 
+                  <input
+                    type="number"
+                    value={savedAmt}
+                    onChange={(e) => setSavedAmt(e.target.value)}
                     placeholder="₹ Initial Saved"
-                    required 
+                    required
                   />
                 </div>
 
                 <div className="form-group">
                   <label>TARGET DEADLINE</label>
-                  <input 
-                    type="date" 
-                    value={deadline} 
-                    onChange={(e) => setDeadline(e.target.value)} 
-                    required 
+                  <input
+                    type="date"
+                    value={deadline}
+                    onChange={(e) => setDeadline(e.target.value)}
+                    required
                   />
                 </div>
               </div>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="btn btn-primary btn-submit-goal"
                 disabled={savingGoal}
               >
@@ -496,7 +608,7 @@ const Goals = () => {
         </div>
       )}
 
-    </div>
+    </motion.div>
   );
 };
 

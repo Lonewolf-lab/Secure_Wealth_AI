@@ -10,7 +10,7 @@
 .dashboard-sidebar {
   width: 280px;
   background-color: var(--bg-secondary);
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: 1px solid var(--border-subtle);
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -22,7 +22,7 @@
 
 .sidebar-brand {
   padding: 2rem 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .sidebar-brand h2 {
@@ -53,26 +53,23 @@
   padding: 0.9rem 1.2rem;
   background: transparent;
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   color: var(--text-secondary);
   font-family: var(--font-body);
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: color var(--transition-fast);
   text-align: left;
 }
 
 .nav-item-btn:hover {
-  background: rgba(255, 255, 255, 0.02);
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .nav-item-btn.active {
-  background: rgba(0, 255, 136, 0.04);
-  color: var(--accent-color);
+  color: var(--accent-primary);
   font-weight: 600;
-  border: 1px solid rgba(0, 255, 136, 0.1);
 }
 
 .nav-icon {
@@ -88,11 +85,12 @@
 .nav-active-indicator {
   display: flex;
   align-items: center;
+  color: var(--accent-primary);
 }
 
 .sidebar-footer {
   padding: 1.5rem 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--border-subtle);
 }
 
 .sidebar-logout-btn {
@@ -103,7 +101,7 @@
   padding: 0.9rem 1.2rem;
   background: transparent;
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   color: var(--text-secondary);
   font-family: var(--font-body);
   font-size: 0.95rem;
@@ -114,8 +112,8 @@
 }
 
 .sidebar-logout-btn:hover {
-  background: rgba(255, 51, 102, 0.05);
-  color: #ff3366;
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
 }
 
 /* Workspace Layout */
@@ -130,7 +128,7 @@
 
 .workspace-header {
   padding: 2rem 2.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-subtle);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -140,13 +138,13 @@
 .header-title-box h1 {
   font-size: 1.8rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 0.25rem;
 }
 
 .header-date {
   font-size: 0.8rem;
-  color: var(--accent-color);
+  color: var(--accent-primary);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -167,7 +165,7 @@
 .profile-name {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .profile-role {
@@ -180,8 +178,8 @@
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -199,64 +197,67 @@
 .panel-inner {
   flex-grow: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Module Placeholders */
-.module-placeholder {
-  display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 4rem;
-  background: rgba(255, 255, 255, 0.01);
-  border: 1px dashed rgba(255, 255, 255, 0.1);
-  border-radius: 24px;
-  max-width: 500px;
 }
 
-.pulse-circle {
-  width: 70px;
-  height: 70px;
+/* Live Defense Ring Pulse Badge */
+.pulse-ring-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  position: relative;
+}
+
+.pulse-ring-dot {
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: rgba(0, 255, 136, 0.05);
-  color: var(--accent-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1.5rem;
-  animation: pulse-glow 2s infinite ease-in-out;
-  border: 1px solid rgba(0, 255, 136, 0.1);
+  background-color: var(--color-success);
+  position: relative;
 }
 
-.module-placeholder h3 {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 0.75rem;
+.pulse-ring-dot::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border-radius: 50%;
+  border: 2px solid var(--color-success);
+  animation: pulse-ring 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
 }
 
-.module-placeholder p {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-@keyframes pulse-glow {
+@keyframes pulse-ring {
   0% {
-    box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.2);
-    transform: scale(1);
+    transform: scale(0.5);
+    opacity: 0.8;
   }
-  50% {
-    box-shadow: 0 0 15px 5px rgba(0, 255, 136, 0.1);
-    transform: scale(1.05);
+  80%, 100% {
+    transform: scale(2.2);
+    opacity: 0;
   }
-  100% {
-    box-shadow: 0 0 0 0 rgba(0, 255, 136, 0);
-    transform: scale(1);
-  }
+}
+
+/* Skeleton Shimmer Loading Placements */
+.skeleton-dial-container,
+.skeleton-card,
+.skeleton-box,
+.skeleton-line {
+  background: linear-gradient(
+    90deg,
+    var(--bg-surface) 25%,
+    var(--bg-card-hover) 50%,
+    var(--bg-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 @media (max-width: 768px) {
@@ -268,7 +269,7 @@
     width: 100%;
     height: auto;
     border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--border-subtle);
   }
 
   .workspace-header {
@@ -284,9 +285,5 @@
 
   .workspace-panel {
     padding: 1.5rem;
-  }
-
-  .module-placeholder {
-    padding: 2rem;
   }
 }

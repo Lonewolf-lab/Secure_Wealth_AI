@@ -35,8 +35,10 @@
   align-items: center;
   gap: 0;
   z-index: 1;
-  padding-top: 35vh; /* Increased to lower everything even more */
-  padding-bottom: 6rem; /* headroom for the bottom bar */
+  padding-top: 35vh;
+  /* Increased to lower everything even more */
+  padding-bottom: 6rem;
+  /* headroom for the bottom bar */
 }
 
 .hero-giant-text {
@@ -46,7 +48,8 @@
   color: #ffffff;
   white-space: nowrap;
   letter-spacing: -2px;
-  position: static;  /* part of the natural flex flow */
+  position: static;
+  /* part of the natural flex flow */
   z-index: 1;
   text-align: center;
   line-height: 1;
@@ -54,12 +57,17 @@
 }
 
 .hero-center-image {
-  position: static; /* part of the natural flex flow */
-  width: 50vw; /* Reduced from 60vw to make it smaller */
-  max-width: 650px; /* Reduced from 800px */
+  position: static;
+  /* part of the natural flex flow */
+  width: 50vw;
+  /* Reduced from 60vw to make it smaller */
+  max-width: 650px;
+  /* Reduced from 800px */
   min-width: 300px;
-  margin-top: -10vw; /* This pulls the image up to overlap the text */
-  z-index: 2; /* Sits exactly on top of the text */
+  margin-top: -10vw;
+  /* This pulls the image up to overlap the text */
+  z-index: 2;
+  /* Sits exactly on top of the text */
   pointer-events: none;
   mix-blend-mode: screen;
   display: flex;
@@ -78,8 +86,13 @@
 }
 
 @keyframes gentleFloat {
-  0% { transform: translateY(0px) scale(1); }
-  100% { transform: translateY(-20px) scale(1.02); }
+  0% {
+    transform: translateY(0px) scale(1);
+  }
+
+  100% {
+    transform: translateY(-20px) scale(1.02);
+  }
 }
 
 .hero-bottom-bar {

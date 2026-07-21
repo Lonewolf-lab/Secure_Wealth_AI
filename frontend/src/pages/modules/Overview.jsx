@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
+import { motion } from 'framer-motion';
+import CountUp from '../../components/CountUp';
 import { 
   TrendingUp, 
   ArrowUpRight, 
@@ -9,15 +11,35 @@ import {
   Wallet,
   Target,
   Shield,
-  Percent,
-  TrendingDown
+  Percent
 } from 'lucide-react';
 import './Overview.css';
+
+const containerVariants = {
+  initial: { opacity: 0 },
+  animate: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.04,
+    },
+  },
+};
+
+const cardItemVariants = {
+  initial: { opacity: 0, y: 12 },
+  animate: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] } 
+  },
+};
 
 const Overview = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [animatedScore, setAnimatedScore] = useState(0);
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -35,6 +57,31 @@ const Overview = () => {
     };
     fetchSummary();
   }, []);
+
+  const score = data?.wealthScore?.score || 524;
+
+  // Single synchronized frame loop for both circle arc and score text
+  useEffect(() => {
+    if (loading || !data) return;
+    
+    let start = null;
+    const duration = 1200; // ms
+    const target = score;
+
+    const animate = (timestamp) => {
+      if (!start) start = timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      const easeOut = progress * (2 - progress);
+      setAnimatedScore(easeOut * target);
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    const animId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animId);
+  }, [loading, data, score]);
 
   if (loading) {
     return (
@@ -67,34 +114,41 @@ const Overview = () => {
 
   const { totalNetWorth, monthlyIncome, monthlySavingsRate, topGoal, wealthScore, recentTransactions, marketAlerts } = data || {};
 
-  const score = wealthScore?.score || 500;
   const savingsScore = wealthScore?.savingsScore || 125;
-  const goalScore = wealthScore?.goalScore || 125;
-  const investmentScore = wealthScore?.investmentScore || 125;
-  const protectionScore = wealthScore?.protectionScore || 125;
+  const goalScore = wealthScore?.goalScore || 59;
+  const investmentScore = wealthScore?.investmentScore || 90;
+  const protectionScore = wealthScore?.protectionScore || 250;
 
   // SVG Gauge math
   const radius = 70;
   const strokeWidth = 10;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (score / 1000) * circumference;
+  const currentDashoffset = circumference - (animatedScore / 1000) * circumference;
 
   const getScoreRating = (val) => {
-    if (val >= 800) return { label: 'EXCELLENT', color: '#00ff88' };
-    if (val >= 600) return { label: 'STRONG', color: '#00e5ff' };
-    if (val >= 400) return { label: 'MODERATE', color: '#ffb700' };
-    return { label: 'WEAK', color: '#ff3366' };
+    if (val >= 800) return { label: 'EXCELLENT', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)' };
+    if (val >= 600) return { label: 'STRONG', color: '#06b6d4', bg: 'rgba(6, 182, 212, 0.15)' };
+    if (val >= 400) return { label: 'MODERATE', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)' };
+    return { label: 'WEAK', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.15)' };
   };
 
   const rating = getScoreRating(score);
 
   return (
-    <div className="overview-panel-content">
+    <motion.div 
+      className="overview-panel-content"
+      variants={containerVariants}
+      initial="initial"
+      animate="animate"
+    >
       {/* Upper Grid: Circular Dial & Highlights */}
       <div className="overview-top-grid">
         
         {/* Circular Dial Card */}
-        <div className="overview-card score-dial-card">
+        <motion.div 
+          className="overview-card score-dial-card" 
+          variants={cardItemVariants}
+        >
           <div className="card-header">
             <h3>Circular Wealth Score</h3>
             <span className="card-badge"><Award size={14} /> AI Health Twin</span>
@@ -109,6 +163,7 @@ const Overview = () => {
                 r={radius}
                 strokeWidth={strokeWidth}
                 fill="transparent"
+                stroke="rgba(255, 255, 255, 0.1)"
               />
               <circle
                 className="gauge-progress"
@@ -117,18 +172,20 @@ const Overview = () => {
                 r={radius}
                 strokeWidth={strokeWidth}
                 fill="transparent"
+                stroke={rating.color}
                 strokeDasharray={circumference}
-                strokeDashoffset={strokeDashoffset}
+                strokeDashoffset={currentDashoffset}
                 style={{
-                  stroke: rating.color,
-                  filter: `drop-shadow(0 0 8px ${rating.color}44)`
+                  strokeLinecap: 'round',
                 }}
               />
             </svg>
             <div className="dial-center-text">
-              <span className="score-number" style={{ color: rating.color }}>{score}</span>
+              <span className="score-number" style={{ color: rating.color }}>
+                {Math.round(animatedScore)}
+              </span>
               <span className="score-max">/ 1000</span>
-              <span className="score-rating-label" style={{ backgroundColor: `${rating.color}15`, color: rating.color }}>
+              <span className="score-rating-label" style={{ backgroundColor: rating.bg, color: rating.color }}>
                 {rating.label}
               </span>
             </div>
@@ -141,7 +198,13 @@ const Overview = () => {
                 <span className="comp-score-val">{savingsScore} / 250</span>
               </div>
               <div className="comp-score-bar-bg">
-                <div className="comp-score-bar-fill" style={{ width: `${(savingsScore/250)*100}%`, backgroundColor: '#00ff88' }}></div>
+                <motion.div 
+                  className="comp-score-bar-fill" 
+                  initial={{ width: '0%' }}
+                  animate={{ width: `${(savingsScore/250)*100}%` }}
+                  transition={{ duration: 1.2, ease: [0.25, 1, 0.5, 1] }}
+                  style={{ backgroundColor: '#10b981' }}
+                />
               </div>
             </div>
 
@@ -151,7 +214,13 @@ const Overview = () => {
                 <span className="comp-score-val">{goalScore} / 250</span>
               </div>
               <div className="comp-score-bar-bg">
-                <div className="comp-score-bar-fill" style={{ width: `${(goalScore/250)*100}%`, backgroundColor: '#00e5ff' }}></div>
+                <motion.div 
+                  className="comp-score-bar-fill" 
+                  initial={{ width: '0%' }}
+                  animate={{ width: `${(goalScore/250)*100}%` }}
+                  transition={{ duration: 1.2, ease: [0.25, 1, 0.5, 1] }}
+                  style={{ backgroundColor: '#06b6d4' }}
+                />
               </div>
             </div>
 
@@ -161,7 +230,13 @@ const Overview = () => {
                 <span className="comp-score-val">{investmentScore} / 250</span>
               </div>
               <div className="comp-score-bar-bg">
-                <div className="comp-score-bar-fill" style={{ width: `${(investmentScore/250)*100}%`, backgroundColor: '#ffb700' }}></div>
+                <motion.div 
+                  className="comp-score-bar-fill" 
+                  initial={{ width: '0%' }}
+                  animate={{ width: `${(investmentScore/250)*100}%` }}
+                  transition={{ duration: 1.2, ease: [0.25, 1, 0.5, 1] }}
+                  style={{ backgroundColor: '#f59e0b' }}
+                />
               </div>
             </div>
 
@@ -171,37 +246,56 @@ const Overview = () => {
                 <span className="comp-score-val">{protectionScore} / 250</span>
               </div>
               <div className="comp-score-bar-bg">
-                <div className="comp-score-bar-fill" style={{ width: `${(protectionScore/250)*100}%`, backgroundColor: '#ff3366' }}></div>
+                <motion.div 
+                  className="comp-score-bar-fill" 
+                  initial={{ width: '0%' }}
+                  animate={{ width: `${(protectionScore/250)*100}%` }}
+                  transition={{ duration: 1.2, ease: [0.25, 1, 0.5, 1] }}
+                  style={{ backgroundColor: '#3b82f6' }}
+                />
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Aggregator Asset Summary Metrics */}
         <div className="overview-stats-container">
-          <div className="stats-metric-card">
+          <motion.div 
+            className="stats-metric-card" 
+            variants={cardItemVariants}
+          >
             <div className="metric-icon-box"><Wallet size={24} /></div>
             <div className="metric-details">
               <span>TOTAL PORTFOLIO NET WORTH</span>
-              <h2>₹{totalNetWorth?.toLocaleString('en-IN') || '0'}</h2>
+              <h2>
+                <CountUp end={totalNetWorth || 0} prefix="₹" duration={1200} />
+              </h2>
               <p className="metric-trendup">
                 <TrendingUp size={14} /> Integrated via PSB Aggregator
               </p>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="stats-metric-card">
+          <motion.div 
+            className="stats-metric-card" 
+            variants={cardItemVariants}
+          >
             <div className="metric-icon-box"><Percent size={24} /></div>
             <div className="metric-details">
               <span>MONTHLY SAVINGS RATE</span>
-              <h2>{(monthlySavingsRate * 100).toFixed(1)}%</h2>
+              <h2>
+                <CountUp end={monthlySavingsRate ? monthlySavingsRate * 100 : 0} decimals={1} suffix="%" duration={1000} />
+              </h2>
               <p className="metric-details-text">
                 Targeting ₹{((monthlyIncome || 0) * monthlySavingsRate).toLocaleString('en-IN')}/mo in savings
               </p>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="stats-metric-card">
+          <motion.div 
+            className="stats-metric-card" 
+            variants={cardItemVariants}
+          >
             <div className="metric-icon-box"><Target size={24} /></div>
             <div className="metric-details">
               <span>NEAREST FINANCIAL GOAL</span>
@@ -219,7 +313,7 @@ const Overview = () => {
                 </>
               )}
             </div>
-          </div>
+          </motion.div>
         </div>
 
       </div>
@@ -227,7 +321,10 @@ const Overview = () => {
       {/* Lower Row: Recent Activity & Market Sentiment */}
       <div className="overview-bottom-grid">
         {/* Transaction History */}
-        <div className="overview-card activity-card">
+        <motion.div 
+          className="overview-card activity-card" 
+          variants={cardItemVariants}
+        >
           <div className="card-header">
             <h3>Recent Account Transactions</h3>
           </div>
@@ -256,10 +353,13 @@ const Overview = () => {
               <p className="no-data-msg">No transactions found.</p>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Market Bulletins */}
-        <div className="overview-card bulletins-card">
+        <motion.div 
+          className="overview-card bulletins-card" 
+          variants={cardItemVariants}
+        >
           <div className="card-header">
             <h3>SecureWealth Intelligence</h3>
           </div>
@@ -280,9 +380,9 @@ const Overview = () => {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

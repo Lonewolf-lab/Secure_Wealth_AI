@@ -101,12 +101,12 @@
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
   .stat-details {
     text-align: left;
     align-items: flex-start;
   }
-  
+
   .stat-item:hover .stat-value {
     transform: translateX(10px);
   }

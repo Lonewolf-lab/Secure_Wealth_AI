@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { api } from '../../services/api';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Send, 
   Bot, 
   User as UserIcon,
   Sparkles,
-  HelpCircle,
   ShieldCheck,
   TrendingUp,
   Calculator
@@ -20,27 +20,24 @@ const Chatbot = () => {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
-  // Scroll to bottom when messages change
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, loading]);
 
   const handleSendMessage = async (text) => {
     const msgText = text || input;
     if (!msgText.trim()) return;
 
-    // Add user message to state
     const newMessages = [...messages, { role: 'user', content: msgText }];
     setMessages(newMessages);
     if (!text) setInput('');
     setLoading(true);
 
     try {
-      // Map history format: API expects role and content
       const history = newMessages.slice(1, -1).map(m => ({
         role: m.role,
         content: m.content
@@ -51,7 +48,6 @@ const Chatbot = () => {
         conversationHistory: history
       });
 
-      // Add assistant response
       setMessages(prev => [...prev, { role: 'assistant', content: res.response || "I'm sorry, I encountered an issue compiling the response." }]);
     } catch (err) {
       console.error('Failed to communicate with chat service', err);
@@ -73,7 +69,12 @@ const Chatbot = () => {
   ];
 
   return (
-    <div className="chatbot-content-wrapper">
+    <motion.div 
+      className="chatbot-content-wrapper"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.28, ease: 'easeOut' }}
+    >
       
       <div className="chatbot-main-card">
         {/* Header */}
@@ -93,23 +94,35 @@ const Chatbot = () => {
 
         {/* Message Panel */}
         <div className="chat-messages-container">
-          {messages.map((msg, idx) => {
-            const isUser = msg.role === 'user';
-            return (
-              <div key={idx} className={`chat-message-row ${isUser ? 'user' : 'assistant'}`}>
-                <div className={`chat-avatar ${isUser ? 'user' : 'assistant'}`}>
-                  {isUser ? <UserIcon size={14} /> : <Bot size={14} />}
-                </div>
-                
-                <div className={`chat-bubble ${isUser ? 'user' : 'assistant'}`}>
-                  <p>{msg.content}</p>
-                </div>
-              </div>
-            );
-          })}
+          <AnimatePresence initial={false}>
+            {messages.map((msg, idx) => {
+              const isUser = msg.role === 'user';
+              return (
+                <motion.div 
+                  key={idx} 
+                  className={`chat-message-row ${isUser ? 'user' : 'assistant'}`}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
+                >
+                  <div className={`chat-avatar ${isUser ? 'user' : 'assistant'}`}>
+                    {isUser ? <UserIcon size={14} /> : <Bot size={14} />}
+                  </div>
+                  
+                  <div className={`chat-bubble ${isUser ? 'user' : 'assistant'}`}>
+                    <p>{msg.content}</p>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
 
           {loading && (
-            <div className="chat-message-row assistant">
+            <motion.div 
+              className="chat-message-row assistant"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
               <div className="chat-avatar assistant">
                 <Bot size={14} />
               </div>
@@ -118,7 +131,7 @@ const Chatbot = () => {
                 <span className="dot"></span>
                 <span className="dot"></span>
               </div>
-            </div>
+            </motion.div>
           )}
 
           <div ref={messagesEndRef} />
@@ -158,7 +171,7 @@ const Chatbot = () => {
 
       </div>
 
-    </div>
+    </motion.div>
   );
 };
 
