@@ -71,12 +71,6 @@ const Security = () => {
   const [loadingLogs, setLoadingLogs] = useState(false);
   const [fraudResult, setFraudResult] = useState(null);
   const [scanningFraud, setScanningFraud] = useState(false);
-
-  const [showOtpModal, setShowOtpModal] = useState(false);
-  const [otpInput, setOtpInput] = useState('');
-  const [otpVerified, setOtpVerified] = useState(false);
-  const [verifyingOtp, setVerifyingOtp] = useState(false);
-
   useEffect(() => {
     fetchDevices();
     fetchAuditLogs();
@@ -99,7 +93,7 @@ const Security = () => {
     } catch (err) {
       console.error('Failed to fetch audit logs', err);
     } finally {
-      setLoadingData(false);
+      setLoadingLogs(false);
     }
   };
 
@@ -244,8 +238,6 @@ const Security = () => {
                   <input type="number" min="0" max="23" value={hour} onChange={(e) => setHour(e.target.value)} required />
                 </div>
               </div>
-
-<<<<<<< HEAD
               <div className="form-row">
                 <div className="form-group">
                   <label>IS NEW DEVICE?</label>
