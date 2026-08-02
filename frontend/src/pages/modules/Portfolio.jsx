@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
 import { motion } from 'framer-motion';
 import CountUp from '../../components/CountUp';
+import { useLanguage } from '../../context/LanguageContext';
 import { 
   Plus, 
   Trash2, 
@@ -37,6 +38,7 @@ const cardItemVariants = {
 };
 
 const Portfolio = () => {
+  const { t } = useLanguage();
   const [portfolio, setPortfolio] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -63,7 +65,7 @@ const Portfolio = () => {
       setError(null);
     } catch (err) {
       console.error('Failed to load portfolio details', err);
-      setError('Unable to retrieve portfolio assets. Confirm backend connection.');
+      setError(t('common.offline'));
     } finally {
       setLoading(false);
     }
@@ -99,20 +101,19 @@ const Portfolio = () => {
       await fetchPortfolioData();
     } catch (err) {
       console.error('Failed to add manual asset', err);
-      alert('Failed to log asset. Check inputs.');
+      alert('Failed to log asset.');
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDeleteAsset = async (assetId) => {
-    if (!window.confirm('Are you sure you want to remove this asset?')) return;
+    if (!window.confirm(t('portfolio.confirmDelete'))) return;
     try {
       await api.delete(`/api/assets/${assetId}`);
       await fetchPortfolioData();
     } catch (err) {
       console.error('Failed to delete asset', err);
-      alert('Failed to delete asset.');
     }
   };
 
@@ -131,10 +132,10 @@ const Portfolio = () => {
   if (error) {
     return (
       <div className="portfolio-error">
-        <h3>Connection offline</h3>
+        <h3>{t('common.offline')}</h3>
         <p>{error}</p>
         <button className="btn btn-secondary" onClick={fetchPortfolioData}>
-          RECONNECT PORTFOLIO
+          {t('common.reconnect')}
         </button>
       </div>
     );
@@ -201,11 +202,11 @@ const Portfolio = () => {
         >
           <div className="chart-header-box">
             <div>
-              <span>PORTFOLIO VALUATION HISTORY</span>
-              <h3>Net Worth Compounding</h3>
+              <span>{t('portfolio.title')}</span>
+              <h3>{t('portfolio.subTitle')}</h3>
             </div>
             <div className="compounding-tag">
-              <TrendingUp size={14} /> Compounded Monthly
+              <TrendingUp size={14} /> {t('portfolio.compounded')}
             </div>
           </div>
 
@@ -265,7 +266,7 @@ const Portfolio = () => {
                 })}
               </svg>
             ) : (
-              <p className="no-data-msg">Valuation history rendering...</p>
+              <p className="no-data-msg">{t('portfolio.valuationRendering')}</p>
             )}
           </div>
           
@@ -282,20 +283,20 @@ const Portfolio = () => {
           variants={cardItemVariants}
         >
           <div className="summary-val-box">
-            <span>Net Asset Valuation</span>
+            <span>{t('portfolio.netValuation')}</span>
             <h1>
               <CountUp end={totalValue || 0} prefix="₹" duration={1200} />
             </h1>
-            <p><ShieldCheck size={14} /> Synchronized with PSB Security Twin</p>
+            <p><ShieldCheck size={14} /> {t('portfolio.syncTwin')}</p>
           </div>
 
           <div className="allocation-list">
             <div className="allocation-item">
-              <span>Financial Investments</span>
+              <span>{t('portfolio.financialInvestments')}</span>
               <strong>₹{investments.reduce((acc, current) => acc + (current.amount || 0), 0).toLocaleString('en-IN')}</strong>
             </div>
             <div className="allocation-item">
-              <span>Manual Tangible Assets</span>
+              <span>{t('portfolio.manualAssets')}</span>
               <strong>₹{assets.reduce((acc, current) => acc + (current.currentValue || 0), 0).toLocaleString('en-IN')}</strong>
             </div>
           </div>
@@ -312,12 +313,12 @@ const Portfolio = () => {
           variants={cardItemVariants}
         >
           <div className="panel-header-action">
-            <h3>Manual Tangible Assets</h3>
+            <h3>{t('portfolio.tangibleAssets')}</h3>
             <button 
               className="btn btn-secondary btn-action-add"
               onClick={() => setShowAddForm(true)}
             >
-              <Plus size={16} /> LOG ASSET
+              <Plus size={16} /> {t('portfolio.addAsset')}
             </button>
           </div>
 
@@ -327,10 +328,10 @@ const Portfolio = () => {
                 <table className="portfolio-table">
                   <thead>
                     <tr>
-                      <th>ASSET NAME</th>
-                      <th>TYPE</th>
-                      <th>VALUATION</th>
-                      <th>ACTION</th>
+                      <th>{t('portfolio.assetName')}</th>
+                      <th>{t('portfolio.category')}</th>
+                      <th>{t('portfolio.estimatedValue')}</th>
+                      <th>{t('common.status')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -348,7 +349,7 @@ const Portfolio = () => {
                           <button 
                             onClick={() => handleDeleteAsset(asset.id)}
                             className="btn-icon-delete"
-                            title="Delete Asset"
+                            title={t('common.delete')}
                           >
                             <Trash2 size={16} />
                           </button>
@@ -360,7 +361,7 @@ const Portfolio = () => {
               </div>
             ) : (
               <div className="empty-panel">
-                <p>No manual assets logged. Log Property, Vehicles, or Gold holdings to map complete asset classes.</p>
+                <p>{t('portfolio.noAssets')}</p>
               </div>
             )}
           </div>
@@ -372,7 +373,7 @@ const Portfolio = () => {
           variants={cardItemVariants}
         >
           <div className="panel-header-action">
-            <h3>Active Financial Investments</h3>
+            <h3>{t('portfolio.activeInvestments')}</h3>
           </div>
 
           <div className="investment-items-list">
@@ -381,10 +382,10 @@ const Portfolio = () => {
                 <table className="portfolio-table">
                   <thead>
                     <tr>
-                      <th>INSTRUMENT</th>
-                      <th>TYPE</th>
-                      <th>AMOUNT</th>
-                      <th>STATUS</th>
+                      <th>{t('portfolio.assetName')}</th>
+                      <th>{t('portfolio.category')}</th>
+                      <th>{t('common.target')}</th>
+                      <th>{t('common.status')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -400,7 +401,7 @@ const Portfolio = () => {
                         <td className="amount-cell">₹{inv.amount?.toLocaleString('en-IN')}</td>
                         <td>
                           <span className={`badge-status ${inv.status?.toLowerCase() === 'active' ? 'active' : 'matured'}`}>
-                            {inv.status}
+                            {inv.status === 'ACTIVE' ? t('common.active') : inv.status}
                           </span>
                         </td>
                       </tr>
@@ -410,7 +411,7 @@ const Portfolio = () => {
               </div>
             ) : (
               <div className="empty-panel">
-                <p>No active investments. Perform investment purchases in the Security Twin Sandbox to populate simulated wealth items.</p>
+                <p>{t('portfolio.noInvestments')}</p>
               </div>
             )}
           </div>
@@ -423,7 +424,7 @@ const Portfolio = () => {
         <div className="asset-modal-overlay">
           <div className="asset-modal">
             <div className="modal-header">
-              <h3>Log Tangible Asset</h3>
+              <h3>{t('portfolio.addAsset')}</h3>
               <button className="btn-close-modal" onClick={() => setShowAddForm(false)}>
                 <X size={20} />
               </button>
@@ -431,7 +432,7 @@ const Portfolio = () => {
             
             <form onSubmit={handleAddAsset} className="asset-form">
               <div className="form-group">
-                <label>ASSET NAME</label>
+                <label>{t('portfolio.assetName')}</label>
                 <input 
                   type="text" 
                   value={assetName} 
@@ -443,17 +444,17 @@ const Portfolio = () => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>ASSET CLASS</label>
+                  <label>{t('portfolio.category')}</label>
                   <select value={assetType} onChange={(e) => setAssetType(e.target.value)}>
-                    <option value="PROPERTY">PROPERTY (Real Estate)</option>
-                    <option value="VEHICLE">VEHICLE (Car/Bike)</option>
-                    <option value="GOLD">GOLD (Bullion/Jewelry)</option>
-                    <option value="OTHER">OTHER TANGIBLES</option>
+                    <option value="PROPERTY">{t('portfolio.property')}</option>
+                    <option value="VEHICLE">{t('portfolio.vehicle')}</option>
+                    <option value="GOLD">{t('portfolio.gold')}</option>
+                    <option value="OTHER">{t('portfolio.other')}</option>
                   </select>
                 </div>
 
                 <div className="form-group">
-                  <label>CURRENT VALUATION (INR)</label>
+                  <label>{t('portfolio.estimatedValue')}</label>
                   <input 
                     type="number" 
                     value={assetValue} 
@@ -465,7 +466,7 @@ const Portfolio = () => {
               </div>
 
               <div className="form-group">
-                <label>PURCHASE DATE</label>
+                <label>{t('portfolio.purchaseDate')}</label>
                 <input 
                   type="date" 
                   value={purchaseDate} 
@@ -474,11 +475,11 @@ const Portfolio = () => {
               </div>
 
               <div className="form-group">
-                <label>NOTES / AUDIT DETAILS</label>
+                <label>{t('portfolio.notes')}</label>
                 <textarea 
                   value={notes} 
                   onChange={(e) => setNotes(e.target.value)} 
-                  placeholder="e.g. Registered market valuation under joint ownership."
+                  placeholder="Notes..."
                   rows="3"
                 ></textarea>
               </div>
@@ -488,7 +489,7 @@ const Portfolio = () => {
                 className="btn btn-primary btn-submit-asset"
                 disabled={submitting}
               >
-                {submitting ? 'RECORDING VALUATION...' : 'LOG ASSET VALUATION'}
+                {submitting ? t('common.submitting') : t('portfolio.logAsset')}
               </button>
             </form>
           </div>

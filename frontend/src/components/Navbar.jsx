@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import LanguageSelector from './LanguageSelector';
 import './Navbar.css';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,18 +45,24 @@ const Navbar = () => {
           </div>
 
           <div className="nav-actions">
+            <LanguageSelector alignRight={true} />
+
+            <Link to="/mobile" className="btn btn-secondary nav-btn-mobile" style={{ marginLeft: '8px', marginRight: '8px', color: '#00ff88', borderColor: '#00ff88' }}>
+              {t('nav.mobileDemo')}
+            </Link>
+
             {user ? (
               <div className="nav-user-greeting">
                 <Link to="/dashboard" className="btn btn-secondary nav-btn-dash">
-                  DASHBOARD
+                  {t('nav.dashboard')}
                 </Link>
                 <button onClick={handleLogoutClick} className="btn btn-logout-text">
-                  LOGOUT
+                  {t('nav.logout')}
                 </button>
               </div>
             ) : (
               <Link to="/login" className="btn btn-primary nav-btn-login">
-                SIGN IN
+                {t('nav.signin')}
               </Link>
             )}
 
@@ -62,7 +71,7 @@ const Navbar = () => {
               onClick={() => setIsMenuOpen(true)}
               aria-label="Open menu"
             >
-              MENU
+              {t('nav.menu')}
             </button>
           </div>
         </div>

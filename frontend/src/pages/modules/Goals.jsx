@@ -2,15 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import CountUp from '../../components/CountUp';
-import {
-  Target,
-  Plus,
-  TrendingUp,
-  Calendar,
-  Sparkles,
-  HelpCircle,
-  Play,
-  CheckCircle,
+import { useLanguage } from '../../context/LanguageContext';
+import { 
+  Target, 
+  Plus, 
+  TrendingUp, 
+  Calendar, 
+  Sparkles, 
+  HelpCircle, 
+  Play, 
+  CheckCircle, 
+  ChevronRight,
   Shield,
   Activity,
   X,
@@ -40,6 +42,7 @@ const cardItemVariants = {
 };
 
 const Goals = () => {
+  const { t } = useLanguage();
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -77,7 +80,7 @@ const Goals = () => {
       setError(null);
     } catch (err) {
       console.error('Failed to load goals', err);
-      setError('Unable to fetch goal milestones. Verify connection.');
+      setError(t('common.offline'));
     } finally {
       setLoading(false);
     }
@@ -107,7 +110,7 @@ const Goals = () => {
 
     try {
       setSavingGoal(true);
-      const newGoal = await api.post('/api/goals', {
+      await api.post('/api/goals', {
         name: goalName,
         targetAmount: parseFloat(targetAmt),
         currentSaved: parseFloat(savedAmt),
@@ -122,14 +125,11 @@ const Goals = () => {
       setCategory('RETIREMENT');
       setShowAddForm(false);
 
-      const res = await api.get('/api/goals');
-      setGoals(res || []);
-      if (newGoal) {
-        handleSelectGoal(newGoal);
-      }
+      // Reload
+      await fetchGoals();
     } catch (err) {
-      console.error('Failed to save goal', err);
-      alert('Failed to save financial goal.');
+      console.error('Failed to create goal', err);
+      alert('Failed to log goal target.');
     } finally {
       setSavingGoal(false);
     }
@@ -157,7 +157,7 @@ const Goals = () => {
       setSimResult(res);
     } catch (err) {
       console.error('Failed to run simulation', err);
-      alert('Simulation error.');
+      alert('Simulation calculation failed.');
     } finally {
       setSimulating(false);
     }
@@ -167,9 +167,9 @@ const Goals = () => {
     return (
       <div className="goals-loading">
         <div className="skeleton-line title"></div>
-        <div className="skeleton-grid-goals">
-          <div className="skeleton-box large"></div>
-          <div className="skeleton-box small"></div>
+        <div className="skeleton-grid">
+          <div className="skeleton-box"></div>
+          <div className="skeleton-box"></div>
         </div>
       </div>
     );
@@ -178,9 +178,9 @@ const Goals = () => {
   if (error) {
     return (
       <div className="goals-error">
-        <h3>Connection offline</h3>
+        <h3>{t('common.offline')}</h3>
         <p>{error}</p>
-        <button className="btn btn-secondary" onClick={fetchGoals}>RELOAD MILESTONES</button>
+        <button className="btn btn-secondary" onClick={fetchGoals}>{t('common.retry')}</button>
       </div>
     );
   }
@@ -198,10 +198,13 @@ const Goals = () => {
 
         {/* Left: Goals milestones list */}
         <motion.div className="goals-list-card" variants={cardItemVariants}>
-          <div className="card-header-action">
-            <h3>Milestone Targets</h3>
-            <button className="btn btn-secondary btn-log-goal" onClick={() => setShowAddForm(true)}>
-              <Plus size={16} /> ADD TARGET
+          <div className="card-header-flex">
+            <div>
+              <span>{t('goals.title')}</span>
+              <h3>{t('goals.subTitle')}</h3>
+            </div>
+            <button className="btn btn-primary btn-add-goal" onClick={() => setShowAddForm(true)}>
+              <Plus size={16} /> {t('goals.createGoal')}
             </button>
           </div>
 
@@ -228,7 +231,7 @@ const Goals = () => {
 
                       <div className="goal-card-progress-box">
                         <div className="progress-info-row">
-                          <span>Progress</span>
+                          <span>{t('goals.progress')}</span>
                           <strong>{pct.toFixed(0)}%</strong>
                         </div>
                         <div className="progress-bar-bg">
@@ -241,12 +244,12 @@ const Goals = () => {
                         </div>
                         <div className="progress-amounts-row">
                           <span>₹{g.currentSaved?.toLocaleString('en-IN')}</span>
-                          <span>Target: ₹{g.targetAmount?.toLocaleString('en-IN')}</span>
+                          <span>{t('common.target')}: ₹{g.targetAmount?.toLocaleString('en-IN')}</span>
                         </div>
                       </div>
 
                       <div className="goal-card-date">
-                        <Calendar size={12} /> Target Date: {new Date(g.deadline).toLocaleDateString('en-IN', { year: 'numeric', month: 'short' })}
+                        <Calendar size={12} /> {t('goals.deadline')}: {new Date(g.deadline).toLocaleDateString('en-IN', { year: 'numeric', month: 'short' })}
                       </div>
                     </div>
                   );
@@ -254,7 +257,7 @@ const Goals = () => {
               </div>
             ) : (
               <div className="empty-panel">
-                <p>No milestones created yet. Set up targets like Retirement Corpus or Home Downpayment to map projections.</p>
+                <p>{t('goals.noGoals')}</p>
               </div>
             )}
           </div>
@@ -263,32 +266,32 @@ const Goals = () => {
         {/* Right: Projection Details */}
         <motion.div className="goals-projection-card" variants={cardItemVariants}>
           <div className="card-header-plain">
-            <h3>AI Goal Projection Pathway</h3>
+            <h3>{t('goals.title')}</h3>
           </div>
 
           {selectedGoal ? (
             <div className="projection-details-panel">
               <div className="selected-goal-meta">
                 <h4>{selectedGoal.name}</h4>
-                <p>Calculated projection from current assets & compounding vectors</p>
+                <p>{t('goals.subTitle')}</p>
               </div>
 
               {loadingProj ? (
                 <div className="projection-loading-spinner">
                   <div className="spinner"></div>
-                  <p>Processing compound path...</p>
+                  <p>{t('common.loading')}</p>
                 </div>
               ) : projection ? (
                 <div className="projection-info-box">
                   <div className="projection-metrics-grid">
                     <div className="proj-metric-item">
-                      <span>PROJECTED CORPUS</span>
+                      <span>{t('goals.targetAmount')}</span>
                       <h3 className="proj-corpus-number">
                         <CountUp end={projection.projectedAmountAtDeadline || 0} prefix="₹" duration={1200} />
                       </h3>
                     </div>
                     <div className="proj-metric-item">
-                      <span>FORECAST STATUS</span>
+                      <span>{t('common.status')}</span>
                       <h3 className="proj-status-badge" style={{ color: projection.status === 'ON_TRACK' ? '#10b981' : '#f59e0b' }}>
                         {projection.status?.replace('_', ' ')}
                       </h3>
@@ -298,7 +301,7 @@ const Goals = () => {
                   <div className="projection-suggestion-card">
                     <div className="suggestion-icon-box"><Sparkles size={20} /></div>
                     <div className="suggestion-text">
-                      <h5>Twin Recommendation</h5>
+                      <h5>{t('dashboard.healthTwin')}</h5>
                       <p>{projection.suggestion}</p>
                     </div>
                   </div>
@@ -318,24 +321,20 @@ const Goals = () => {
                     <div className="path-row end">
                       <div className="path-node target"></div>
                       <div className="path-node-text">
-                        <span>Deadline ({new Date(selectedGoal.deadline).getFullYear()})</span>
+                        <span>{t('goals.deadline')} ({new Date(selectedGoal.deadline).getFullYear()})</span>
                         <strong>₹{projection.projectedAmountAtDeadline?.toLocaleString('en-IN')}</strong>
                       </div>
                     </div>
                   </div>
-
-                  <div className="projection-disclaimer">
-                    *Assumes a compounding rate of 12% per annum on equity assets and 7% on debt investments.
-                  </div>
                 </div>
               ) : (
-                <p className="no-data-msg">No projection mapping returned.</p>
+                <p className="no-data-msg">{t('common.noData')}</p>
               )}
             </div>
           ) : (
             <div className="empty-panel select-prompt">
               <Activity size={32} className="pulse-icon" />
-              <p>Select a milestone card on the left to review its future compounding pathway projections.</p>
+              <p>{t('goals.noGoals')}</p>
             </div>
           )}
         </motion.div>

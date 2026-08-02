@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import CountUp from '../../components/CountUp';
+import { useLanguage } from '../../context/LanguageContext';
 import { 
+  ShieldAlert, 
   ShieldCheck, 
   Smartphone, 
   KeyRound, 
@@ -13,7 +15,10 @@ import {
   RefreshCw,
   Clock,
   Plus,
-  Info
+  Info,
+  Fingerprint,
+  Key,
+  X
 } from 'lucide-react';
 import './Security.css';
 
@@ -38,7 +43,7 @@ const cardItemVariants = {
 };
 
 const Security = () => {
-  // Trusted Devices State
+  const { t } = useLanguage();
   const [devices, setDevices] = useState([]);
   const [newDeviceName, setNewDeviceName] = useState('');
   const [loadingDevices, setLoadingDevices] = useState(false);
@@ -62,12 +67,15 @@ const Security = () => {
   const [isNewLocation, setIsNewLocation] = useState(1);
   const [distance, setDistance] = useState('850');
   const [timeSinceLastTx, setTimeSinceLastTx] = useState('2');
+  const [logs, setLogs] = useState([]);
+  const [loadingLogs, setLoadingLogs] = useState(false);
   const [fraudResult, setFraudResult] = useState(null);
   const [scanningFraud, setScanningFraud] = useState(false);
 
-  // Audit Logs State
-  const [logs, setLogs] = useState([]);
-  const [loadingLogs, setLoadingLogs] = useState(false);
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otpInput, setOtpInput] = useState('');
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
 
   useEffect(() => {
     fetchDevices();
@@ -75,26 +83,23 @@ const Security = () => {
   }, []);
 
   const fetchDevices = async () => {
-    setLoadingDevices(true);
     try {
       const res = await api.get('/api/security/devices');
       setDevices(res || []);
     } catch (err) {
-      console.error('Failed to fetch trusted devices', err);
-    } finally {
-      setLoadingDevices(false);
+      console.error('Failed to fetch devices', err);
     }
   };
 
   const fetchAuditLogs = async () => {
-    setLoadingLogs(true);
     try {
+      setLoadingLogs(true);
       const res = await api.get('/api/security/log?page=0&size=10');
       setLogs(res?.content || []);
     } catch (err) {
-      console.error('Failed to fetch security logs', err);
+      console.error('Failed to fetch audit logs', err);
     } finally {
-      setLoadingLogs(false);
+      setLoadingData(false);
     }
   };
 
@@ -130,13 +135,15 @@ const Security = () => {
       setGeneratingOtp(false);
     }
   };
+    }
+  };
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     if (!otpInput) return;
 
-    setVerifyingOtp(true);
     try {
+      setVerifyingOtp(true);
       const res = await api.post('/api/security/otp/verify', {
         otp: otpInput,
         actionType: actionType
@@ -180,10 +187,7 @@ const Security = () => {
         new Promise(resolve => setTimeout(resolve, 750))
       ]);
 
-      if (!response.ok) {
-        throw new Error('Anomaly detector failed');
-      }
-
+      if (!response.ok) throw new Error('Anomaly detector failed');
       const data = await response.json();
       setFraudResult(data);
 
@@ -201,7 +205,6 @@ const Security = () => {
       fetchAuditLogs();
     } catch (err) {
       console.error('Failed to scan transaction', err);
-      alert('Anomaly scan server offline.');
     } finally {
       setScanningFraud(false);
     }
@@ -224,10 +227,10 @@ const Security = () => {
           variants={cardItemVariants}
         >
           <div className="card-header-plain">
-            <h3>WPRS Real-Time Transaction Shield (FastAPI ML)</h3>
+            <h3>{t('security.wprsTitle') || 'WPRS Real-Time Transaction Shield (FastAPI ML)'}</h3>
             <span className="shield-tag-active pulse-ring-container">
               <span className="pulse-ring-dot"></span>
-              <ShieldCheck size={14} /> Active Defense
+              <ShieldCheck size={14} /> {t('common.safe') || 'Active Defense'}
             </span>
           </div>
 
@@ -235,34 +238,8 @@ const Security = () => {
             <form onSubmit={handleScanTransaction} className="scanner-inputs-form">
               <div className="form-row">
                 <div className="form-group">
-                  <label>AMOUNT (INR)</label>
+                  <label>{t('security.enterOtp')}</label>
                   <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} required />
-                </div>
-                <div className="form-group">
-                  <label>TX TYPE</label>
-                  <select value={txType} onChange={(e) => setTxType(e.target.value)}>
-                    <option value="UPI">UPI TRANSFER</option>
-                    <option value="NEFT">NEFT / RTGS</option>
-                    <option value="Card Payment">CARD PAYMENT</option>
-                    <option value="ATM Withdrawal">ATM WITHDRAWAL</option>
-                    <option value="Wire Transfer">WIRE TRANSFER</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>MERCHANT CATEGORY</label>
-                  <select value={merchantCategory} onChange={(e) => setMerchantCategory(e.target.value)}>
-                    <option value="Grocery">Grocery</option>
-                    <option value="Electronics">Electronics</option>
-                    <option value="Travel">Travel / Flights</option>
-                    <option value="Utility Bills">Utility Bills</option>
-                    <option value="Entertainment">Entertainment</option>
-                    <option value="Jewelry">Jewelry / Gold</option>
-                    <option value="Cash Withdrawal">Cash Withdrawal</option>
-                    <option value="Others">Others</option>
-                  </select>
                 </div>
                 <div className="form-group">
                   <label>HOUR OF DAY (0-23)</label>
@@ -270,6 +247,7 @@ const Security = () => {
                 </div>
               </div>
 
+<<<<<<< HEAD
               <div className="form-row">
                 <div className="form-group">
                   <label>IS NEW DEVICE?</label>
@@ -430,8 +408,7 @@ const Security = () => {
           variants={cardItemVariants}
         >
           <div className="card-header-plain">
-            <h3>Trusted Hardware Registry</h3>
-            <span className="header-device-badge"><Smartphone size={16} /></span>
+            <h3>{t('security.registeredDevices')}</h3>
           </div>
 
           <form onSubmit={handleRegisterDevice} className="register-device-form">
@@ -554,6 +531,7 @@ const Security = () => {
                   </motion.button>
                 </div>
               </div>
+
             </form>
 
             <AnimatePresence mode="wait">
@@ -568,7 +546,7 @@ const Security = () => {
                 >
                   {otpVerified ? (
                     <div className="otp-success">
-                      <CheckCircle size={16} />
+                       <CheckCircle size={16} />
                       <span>MFA Verified. Transaction authorized.</span>
                     </div>
                   ) : (

@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { ArrowUpRight } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 import './Services.css';
 
 const Services = () => {
+  const { t } = useLanguage();
   const sectionRef = useRef(null);
 
   useEffect(() => {
@@ -32,26 +34,26 @@ const Services = () => {
   const services = [
     {
       id: '01',
-      title: "Digital Wealth Twin",
-      description: "Receive an exact AI replica of your portfolio, updated in real-time with market data, transaction history, and personalized insights.",
+      title: t('services.twinTitle'),
+      description: t('services.twinDesc'),
       tags: ["Digital Replica", "Real-Time Sync", "Market Data Integration", "Personalized Insights"]
     },
     {
       id: '02',
-      title: "Fraud Detection",
-      description: "Leveraging Advanced Behavioral Biometrics & Multi-Factor Authentication to secure your assets from unauthorized access.",
+      title: t('services.fraudTitle'),
+      description: t('services.fraudDesc'),
       tags: ["Behavioral Biometrics", "Multi-Factor Authentication", "AI-Powered Detection", "Real-Time Monitoring"]
     },
     {
       id: '03',
-      title: "Predictive Analytics",
-      description: "Stay ahead of market trends. We forecast market shifts before they happen, allowing your portfolio to adapt proactively and intelligently.",
+      title: t('services.analyticsTitle'),
+      description: t('services.analyticsDesc'),
       tags: ["Market Forecasting", "Risk Assessment", "Sentiment Analysis", "Trend Modeling"]
     },
     {
       id: '04',
-      title: "Tax Planning",
-      description: "Maximize your returns with our AI-powered tax planning. Reduce your tax liability by optimizing your investment strategies and leveraging smart tax-saving opportunities.",
+      title: t('services.taxTitle'),
+      description: t('services.taxDesc'),
       tags: ["Tax Optimization", "Investment Strategy", "AI-Powered Planning", "Real-Time Tax Savings"]
     }
   ];
@@ -60,8 +62,8 @@ const Services = () => {
     <section id="services" className="services-section" ref={sectionRef}>
       <div className="container">
         <div className="services-header-new">
-          <h2 className="title-our">Our</h2>
-          <h2 className="title-services">services</h2>
+          <h2 className="title-our">{t('services.our')}</h2>
+          <h2 className="title-services">{t('services.title')}</h2>
         </div>
 
         <div className="services-list">

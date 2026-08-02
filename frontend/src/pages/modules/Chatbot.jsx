@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { api } from '../../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '../../context/LanguageContext';
+import { useSpeech } from '../../hooks/useSpeech';
 import { 
   Send, 
   Bot, 
@@ -8,30 +10,68 @@ import {
   Sparkles,
   ShieldCheck,
   TrendingUp,
-  Calculator
+  Calculator,
+  Mic,
+  MicOff,
+  Volume2,
+  VolumeX,
+  AlertCircle,
+  Square
 } from 'lucide-react';
 import './Chatbot.css';
 
 const Chatbot = () => {
+  const { t, currentLanguageObj } = useLanguage();
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Hello! I am your Punjab & Sind Bank AI Wealth Assistant. Ask me anything about tax saving, portfolio rebalancing, goals compounding, or transaction security.' }
+    { role: 'assistant', content: t('chat.welcomeMsg') }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
+  const {
+    isListening,
+    isSpeaking,
+    activeSpeakingId,
+    transcript,
+    speechError,
+    autoReadAloud,
+    isSTTSupported,
+    toggleListening,
+    stopListening,
+    speakText,
+    stopSpeaking,
+    toggleAutoReadAloud
+  } = useSpeech();
+
+  // Populate input when speech transcript updates
+  useEffect(() => {
+    if (transcript) {
+      setInput(transcript);
+    }
+  }, [transcript]);
+
+  // Update initial message when language changes if only 1 message exists
+  useEffect(() => {
+    if (messages.length === 1 && messages[0].role === 'assistant') {
+      setMessages([{ role: 'assistant', content: t('chat.welcomeMsg') }]);
+    }
+  }, [t]);
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, loading]);
+  }, [messages, loading, isListening]);
 
   const handleSendMessage = async (text) => {
     const msgText = text || input;
     if (!msgText.trim()) return;
 
+    if (isListening) {
+      stopListening();
+    }
     const newMessages = [...messages, { role: 'user', content: msgText }];
     setMessages(newMessages);
     if (!text) setInput('');
@@ -48,25 +88,31 @@ const Chatbot = () => {
         conversationHistory: history
       });
 
-      setMessages(prev => [...prev, { role: 'assistant', content: res.response || "I'm sorry, I encountered an issue compiling the response." }]);
+      const replyContent = res.response || t('common.offline');
+
+      // Add assistant response
+      setMessages(prev => [...prev, { role: 'assistant', content: replyContent }]);
+
+      // Trigger Auto Read-Aloud if enabled
+      if (autoReadAloud) {
+        setTimeout(() => {
+          speakText(replyContent, newMessages.length);
+        }, 300);
+      }
     } catch (err) {
       console.error('Failed to communicate with chat service', err);
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Connection offline. Verify if the local AI service is online.' }]);
+      const offlineMsg = t('common.offline');
+      setMessages(prev => [...prev, { role: 'assistant', content: offlineMsg }]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleQuickPrompt = (prompt) => {
-    handleSendMessage(prompt);
+  const handleQuickPrompt = (promptText) => {
+    handleSendMessage(promptText);
   };
 
-  const quickPrompts = [
-    { text: 'How do I save tax under Section 80C?', icon: <Calculator size={14} /> },
-    { text: 'Is my transaction history secure?', icon: <ShieldCheck size={14} /> },
-    { text: 'How is my Wealth Score calculated?', icon: <Sparkles size={14} /> },
-    { text: 'Explain Mean-Variance optimization.', icon: <TrendingUp size={14} /> }
-  ];
+  const prompts = t('chat.prompts') || [];
 
   return (
     <motion.div 
@@ -89,7 +135,21 @@ const Chatbot = () => {
               <p>Punjab & Sind Bank Local Advisor</p>
             </div>
           </div>
-          <span className="chatbot-motto"><Sparkles size={14} /> Ollama Hybrid Engine</span>
+          
+          <div className="header-controls">
+            <button 
+              className={`btn-auto-read ${autoReadAloud ? 'active' : ''}`}
+              onClick={toggleAutoReadAloud}
+              title={t('chat.autoRead')}
+            >
+              {autoReadAloud ? <Volume2 size={15} /> : <VolumeX size={15} />}
+              <span>{t('chat.autoRead')}</span>
+            </button>
+            
+            <span className="chatbot-motto">
+              <Sparkles size={14} /> Ollama Hybrid Engine
+            </span>
+          </div>
         </div>
 
         {/* Message Panel */}
@@ -97,6 +157,8 @@ const Chatbot = () => {
           <AnimatePresence initial={false}>
             {messages.map((msg, idx) => {
               const isUser = msg.role === 'user';
+              const isMsgSpeaking = isSpeaking && activeSpeakingId === idx;
+
               return (
                 <motion.div 
                   key={idx} 
@@ -111,6 +173,17 @@ const Chatbot = () => {
                   
                   <div className={`chat-bubble ${isUser ? 'user' : 'assistant'}`}>
                     <p>{msg.content}</p>
+                    
+                    {!isUser && (
+                      <button 
+                        type="button"
+                        className={`btn-speak-bubble ${isMsgSpeaking ? 'speaking' : ''}`}
+                        onClick={() => isMsgSpeaking ? stopSpeaking() : speakText(msg.content, idx)}
+                        title={isMsgSpeaking ? t('chat.stopSpeaking') : t('chat.speakMessage')}
+                      >
+                        {isMsgSpeaking ? <Square size={12} /> : <Volume2 size={14} />}
+                      </button>
+                    )}
                   </div>
                 </motion.div>
               );
@@ -139,38 +212,66 @@ const Chatbot = () => {
 
         {/* Suggestion Prompts */}
         <div className="quick-prompts-bar">
-          {quickPrompts.map((qp, idx) => (
+          {prompts.map((pText, idx) => (
             <button 
               key={idx} 
               className="btn-quick-prompt"
-              onClick={() => handleQuickPrompt(qp.text)}
+              onClick={() => handleQuickPrompt(pText)}
               disabled={loading}
             >
-              {qp.icon}
-              <span>{qp.text}</span>
+              <Sparkles size={14} />
+              <span>{pText}</span>
             </button>
           ))}
         </div>
 
+        {/* Voice Listening / Error Banner Status */}
+        {isListening && (
+          <div className="voice-status-banner listening">
+            <span className="pulsing-red-dot"></span>
+            <span>{t('chat.micListen', { lang: currentLanguageObj.label })}</span>
+          </div>
+        )}
+
+        {speechError && (
+          <div className="voice-status-banner error">
+            <AlertCircle size={14} />
+            <span>
+              {speechError === 'permission-denied' ? t('chat.micBlocked') : t('chat.voiceError')}
+            </span>
+          </div>
+        )}
+
         {/* Input Bar */}
-        <form 
-          onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} 
-          className="chatbot-input-bar"
-        >
+        <form onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} className="chatbot-input-bar">
           <input 
             type="text" 
             value={input} 
             onChange={(e) => setInput(e.target.value)} 
-            placeholder="Type your wealth advisory query..." 
+            placeholder={t('chat.placeholder')}
             disabled={loading}
           />
-          <button type="submit" className="btn btn-primary btn-send" disabled={loading || !input.trim()}>
-            <Send size={16} />
+
+          {isSTTSupported && (
+            <button 
+              type="button" 
+              className={`btn-mic ${isListening ? 'listening' : ''}`}
+              onClick={toggleListening}
+              title={isListening ? "Stop listening" : "Start voice input"}
+            >
+              {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+            </button>
+          )}
+
+          <button type="submit" className="btn-send" disabled={loading || !input.trim()}>
+            <Send size={18} />
           </button>
         </form>
-
+        
+        <div className="chatbot-disclaimer-bar">
+          <p>{t('chat.disclaimer')}</p>
+        </div>
       </div>
-
     </motion.div>
   );
 };

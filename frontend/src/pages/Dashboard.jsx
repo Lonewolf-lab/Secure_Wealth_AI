@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import LanguageSelector from '../components/LanguageSelector';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, 
@@ -24,6 +26,7 @@ import './Dashboard.css';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -33,12 +36,12 @@ const Dashboard = () => {
   };
 
   const navItems = [
-    { id: 'overview', label: 'Overview', icon: <LayoutDashboard size={20} />, component: <Overview /> },
-    { id: 'portfolio', label: 'Portfolio', icon: <Wallet size={20} />, component: <Portfolio /> },
-    { id: 'goals', label: 'Goals', icon: <Target size={20} />, component: <Goals /> },
-    { id: 'advisor', label: 'AI Advisor', icon: <BrainCircuit size={20} />, component: <AIAdvisor /> },
-    { id: 'security', label: 'Security Twin', icon: <ShieldAlert size={20} />, component: <Security /> },
-    { id: 'chat', label: 'AI Chatbot', icon: <MessageSquareCode size={20} />, component: <Chatbot /> },
+    { id: 'overview', label: t('dashboard.overview'), icon: <LayoutDashboard size={20} />, component: <Overview /> },
+    { id: 'portfolio', label: t('dashboard.portfolio'), icon: <Wallet size={20} />, component: <Portfolio /> },
+    { id: 'goals', label: t('dashboard.goals'), icon: <Target size={20} />, component: <Goals /> },
+    { id: 'advisor', label: t('dashboard.advisor'), icon: <BrainCircuit size={20} />, component: <AIAdvisor /> },
+    { id: 'security', label: t('dashboard.security'), icon: <ShieldAlert size={20} />, component: <Security /> },
+    { id: 'chat', label: t('dashboard.chat'), icon: <MessageSquareCode size={20} />, component: <Chatbot /> },
   ];
 
   const renderActiveModule = () => {
@@ -58,6 +61,9 @@ const Dashboard = () => {
       <aside className="dashboard-sidebar">
         <div className="sidebar-brand">
           <h2>SECUREWEALTH <span className="text-accent">AI</span></h2>
+          <div style={{ marginTop: '10px' }}>
+            <LanguageSelector compact={true} />
+          </div>
         </div>
 
         <nav className="sidebar-nav">
