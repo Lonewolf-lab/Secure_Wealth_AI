@@ -301,6 +301,140 @@
   cursor: not-allowed;
 }
 
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.btn-auto-read {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.3rem 0.7rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-auto-read:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.btn-auto-read.active {
+  background: rgba(0, 255, 136, 0.1);
+  border-color: rgba(0, 255, 136, 0.3);
+  color: #00ff88;
+}
+
+/* Chat bubble speak button */
+.chat-bubble {
+  position: relative;
+}
+
+.btn-speak-bubble {
+  margin-top: 0.5rem;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-speak-bubble:hover {
+  color: #00ff88;
+  background: rgba(0, 255, 136, 0.1);
+}
+
+.btn-speak-bubble.speaking {
+  color: #00ff88;
+  animation: speak-pulse 1.2s infinite ease-in-out;
+}
+
+@keyframes speak-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.7; }
+}
+
+/* Voice Microphone Button */
+.btn-mic {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-mic:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-mic.listening {
+  background: rgba(255, 51, 102, 0.15);
+  border-color: #ff3366;
+  color: #ff3366;
+  animation: mic-pulse 1.4s infinite ease-in-out;
+}
+
+@keyframes mic-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 51, 102, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 51, 102, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 51, 102, 0); }
+}
+
+/* Voice Status Banners */
+.voice-status-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 2rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.voice-status-banner.listening {
+  color: #00ff88;
+}
+
+.voice-status-banner.error {
+  color: #ff3366;
+}
+
+.pulsing-red-dot {
+  width: 8px;
+  height: 8px;
+  background: #ff3366;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #ff3366;
+  animation: dot-pulse 1s infinite alternate;
+}
+
+@keyframes dot-pulse {
+  from { opacity: 0.3; }
+  to { opacity: 1; }
+}
+
 .chatbot-disclaimer-bar {
   padding: 0.4rem 2rem 0.9rem 2rem;
   background: rgba(0, 0, 0, 0.25);

@@ -223,6 +223,12 @@
   "chat": {
     "welcomeMsg": "Hello! I am your PSB SecureWealth AI Assistant. Ask me anything about your portfolio, security rating, or tax saving strategies.",
     "placeholder": "Ask AI Wealth Assistant...",
+    "micListen": "Listening in {{lang}}...",
+    "micBlocked": "Microphone blocked. Allow access in browser settings.",
+    "autoRead": "Auto Read-Aloud",
+    "speakMessage": "Read aloud",
+    "stopSpeaking": "Stop speaking",
+    "voiceError": "Speech recognition error. Tap mic to retry.",
     "prompts": [
       "How to minimize tax under 80C?",
       "Why was my last transaction flagged?",

@@ -1,22 +1,51 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { api } from '../../services/api';
 import { useLanguage } from '../../context/LanguageContext';
+import { useSpeech } from '../../hooks/useSpeech';
 import { 
   Send, 
   Bot, 
   User as UserIcon,
-  Sparkles
+  Sparkles,
+  Mic,
+  MicOff,
+  Volume2,
+  VolumeX,
+  AlertCircle,
+  Square
 } from 'lucide-react';
 import './Chatbot.css';
 
 const Chatbot = () => {
-  const { t } = useLanguage();
+  const { t, currentLanguageObj } = useLanguage();
   const [messages, setMessages] = useState([
     { role: 'assistant', content: t('chat.welcomeMsg') }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
+
+  const {
+    isListening,
+    isSpeaking,
+    activeSpeakingId,
+    transcript,
+    speechError,
+    autoReadAloud,
+    isSTTSupported,
+    toggleListening,
+    stopListening,
+    speakText,
+    stopSpeaking,
+    toggleAutoReadAloud
+  } = useSpeech();
+
+  // Populate input when speech transcript updates
+  useEffect(() => {
+    if (transcript) {
+      setInput(transcript);
+    }
+  }, [transcript]);
 
   // Update initial message when language changes if only 1 message exists
   useEffect(() => {
@@ -32,11 +61,15 @@ const Chatbot = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, loading, isListening]);
 
   const handleSendMessage = async (text) => {
     const msgText = text || input;
     if (!msgText.trim()) return;
+
+    if (isListening) {
+      stopListening();
+    }
 
     // Add user message to state
     const newMessages = [...messages, { role: 'user', content: msgText }];
@@ -56,11 +89,21 @@ const Chatbot = () => {
         conversationHistory: history
       });
 
+      const replyContent = res.response || t('common.offline');
+
       // Add assistant response
-      setMessages(prev => [...prev, { role: 'assistant', content: res.response || t('common.offline') }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: replyContent }]);
+
+      // Trigger Auto Read-Aloud if enabled
+      if (autoReadAloud) {
+        setTimeout(() => {
+          speakText(replyContent, newMessages.length);
+        }, 300);
+      }
     } catch (err) {
       console.error('Failed to communicate with chat service', err);
-      setMessages(prev => [...prev, { role: 'assistant', content: t('common.offline') }]);
+      const offlineMsg = t('common.offline');
+      setMessages(prev => [...prev, { role: 'assistant', content: offlineMsg }]);
     } finally {
       setLoading(false);
     }
@@ -88,13 +131,29 @@ const Chatbot = () => {
               <p>Punjab & Sind Bank Local Advisor</p>
             </div>
           </div>
-          <span className="chatbot-motto"><Sparkles size={14} /> Ollama Hybrid Engine</span>
+          
+          <div className="header-controls">
+            <button 
+              className={`btn-auto-read ${autoReadAloud ? 'active' : ''}`}
+              onClick={toggleAutoReadAloud}
+              title={t('chat.autoRead')}
+            >
+              {autoReadAloud ? <Volume2 size={15} /> : <VolumeX size={15} />}
+              <span>{t('chat.autoRead')}</span>
+            </button>
+            
+            <span className="chatbot-motto">
+              <Sparkles size={14} /> Ollama Hybrid Engine
+            </span>
+          </div>
         </div>
 
         {/* Message Panel */}
         <div className="chat-messages-container">
           {messages.map((msg, idx) => {
             const isUser = msg.role === 'user';
+            const isMsgSpeaking = isSpeaking && activeSpeakingId === idx;
+
             return (
               <div key={idx} className={`chat-message-row ${isUser ? 'user' : 'assistant'}`}>
                 <div className={`chat-avatar ${isUser ? 'user' : 'assistant'}`}>
@@ -103,6 +162,16 @@ const Chatbot = () => {
                 
                 <div className={`chat-bubble ${isUser ? 'user' : 'assistant'}`}>
                   <p>{msg.content}</p>
+                  
+                  {!isUser && (
+                    <button 
+                      className={`btn-speak-bubble ${isMsgSpeaking ? 'speaking' : ''}`}
+                      onClick={() => isMsgSpeaking ? stopSpeaking() : speakText(msg.content, idx)}
+                      title={isMsgSpeaking ? t('chat.stopSpeaking') : t('chat.speakMessage')}
+                    >
+                      {isMsgSpeaking ? <Square size={12} /> : <Volume2 size={14} />}
+                    </button>
+                  )}
                 </div>
               </div>
             );
@@ -139,6 +208,23 @@ const Chatbot = () => {
           ))}
         </div>
 
+        {/* Voice Listening / Error Banner Status */}
+        {isListening && (
+          <div className="voice-status-banner listening">
+            <span className="pulsing-red-dot"></span>
+            <span>{t('chat.micListen', { lang: currentLanguageObj.label })}</span>
+          </div>
+        )}
+
+        {speechError && (
+          <div className="voice-status-banner error">
+            <AlertCircle size={14} />
+            <span>
+              {speechError === 'permission-denied' ? t('chat.micBlocked') : t('chat.voiceError')}
+            </span>
+          </div>
+        )}
+
         {/* Input Bar */}
         <form onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} className="chatbot-input-bar">
           <input 
@@ -148,6 +234,18 @@ const Chatbot = () => {
             placeholder={t('chat.placeholder')}
             disabled={loading}
           />
+
+          {isSTTSupported && (
+            <button 
+              type="button" 
+              className={`btn-mic ${isListening ? 'listening' : ''}`}
+              onClick={toggleListening}
+              title={isListening ? "Stop listening" : "Start voice input"}
+            >
+              {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+            </button>
+          )}
+
           <button type="submit" className="btn-send" disabled={loading || !input.trim()}>
             <Send size={18} />
           </button>
