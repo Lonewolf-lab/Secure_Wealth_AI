@@ -8,6 +8,8 @@ import {
   Calculator,
   Info
 } from 'lucide-react';
+import HabitualContext from '../../components/HabitualContext';
+import TaxSavingsHub from '../../components/TaxSavingsHub';
 import './AIAdvisor.css';
 
 const containerVariants = {
@@ -240,6 +242,12 @@ const AIAdvisor = () => {
           </div>
         </div>
       </div>
+
+      {/* Feature 1: Habitual Context & Recommendations */}
+      <HabitualContext />
+
+      {/* Feature 2: Tax Savings Options Hub */}
+      <TaxSavingsHub />
 
       {/* Upper Grid: AI personalized Recs & Forecast */}
       <div className="advisor-upper-grid">

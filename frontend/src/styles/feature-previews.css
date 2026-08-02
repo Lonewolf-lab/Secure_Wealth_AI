@@ -1,0 +1,46 @@
+/* Neutralized Feature Styling Tokens — Seamlessly Harmonized with Dark Glassmorphism */
+
+/* Feature 1: Habitual Context & Recommendations */
+.feature-preview--habit,
+.feature-preview-habit {
+  border: 1px solid rgba(0, 255, 136, 0.2) !important;
+  background: rgba(13, 13, 18, 0.6) !important;
+  backdrop-filter: blur(16px) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(0, 255, 136, 0.03) !important;
+  position: relative !important;
+  border-radius: 20px !important;
+}
+
+.feature-tag--habit {
+  display: none !important; /* Hide testing badge in production mode */
+}
+
+/* Feature 2: Tax Savings Options */
+.feature-preview--tax,
+.feature-preview-tax {
+  border: 1px solid rgba(6, 182, 212, 0.2) !important;
+  background: rgba(13, 13, 18, 0.6) !important;
+  backdrop-filter: blur(16px) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(6, 182, 212, 0.03) !important;
+  position: relative !important;
+  border-radius: 20px !important;
+}
+
+.feature-tag--tax {
+  display: none !important; /* Hide testing badge in production mode */
+}
+
+/* Feature 3: SIP Adjustments */
+.feature-preview--sip,
+.feature-preview-sip {
+  border: 1px solid rgba(168, 85, 247, 0.2) !important;
+  background: rgba(13, 13, 18, 0.6) !important;
+  backdrop-filter: blur(16px) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(168, 85, 247, 0.03) !important;
+  position: relative !important;
+  border-radius: 20px !important;
+}
+
+.feature-tag--sip {
+  display: none !important; /* Hide testing badge in production mode */
+}

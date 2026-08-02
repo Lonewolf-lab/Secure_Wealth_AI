@@ -250,6 +250,41 @@
     "portfolioTab": "Portfolio",
     "securityTab": "Security",
     "aiTwinTab": "AI Twin",
-    "chatTab": "Assistant"
+    "assistantTab": "Assistant"
+  },
+  "habitual": {
+    "title": "Habitual Context & Behavioral Intelligence",
+    "subtitle": "AI analysis of spending cadence, subscriptions, and automated micro-savings rules",
+    "tabInsights": "Habit Insights",
+    "tabRules": "Micro-Rules Engine",
+    "weekendSpikeCategory": "Spending Cadence",
+    "weekendSpikeTitle": "Weekend Dining & Cab Spikes Detected",
+    "weekendSpikeDesc": "You spend 38% more on dining out and cabs between Friday 8 PM and Sunday midnight compared to weekday averages (+₹4,200/mo).",
+    "weekendSpikeSuggestion": "Set a ₹3,000 weekend spending ceiling to save ₹1,200/mo into ELSS.",
+    "subscriptionCategory": "Subscription Audit",
+    "subscriptionTitle": "3 Overlapping Streaming Subscriptions",
+    "subscriptionDesc": "Active monthly recurring charges for Netflix (4K), Prime Video, and Hotstar Premium total ₹1,450/mo.",
+    "subscriptionSuggestion": "Pause Hotstar Premium auto-debit to recover ₹5,980 annually.",
+    "salarySavingsCategory": "Salary Inflow Trigger",
+    "salarySavingsTitle": "Salary Day Savings Opportunity",
+    "salarySavingsDesc": "Your salary credits on the 1st of every month. 65% of savings remain liquid in savings account till 25th.",
+    "salarySavingsSuggestion": "Enable Auto-Sweep of ₹15,000 on 2nd of every month into Liquid Mutual Funds.",
+    "applyAction": "Enable Habit Rule",
+    "rulesTitle": "Automated Behavioral Micro-Savings Rules",
+    "rulesDesc": "Activate zero-effort behavioral rules that automatically move money into wealth-building SIPs based on real-world triggers.",
+    "rule1Title": "Round-Up UPI Micro Savings",
+    "rule1Desc": "Automatically round up every UPI purchase to the nearest ₹50 and invest the spare change in Liquid FD.",
+    "rule2Title": "Salary Day 10% Auto-Transfer",
+    "rule2Desc": "Automatically transfer 10% of monthly salary into High-Yield ELSS on salary credit date.",
+    "rule3Title": "Impulse Cooling-Off Lock",
+    "rule3Desc": "Require a 24-hour waiting period for discretionary e-commerce purchases exceeding ₹5,000."
+  },
+  "tax": {
+    "title": "Tax Savings Options & Regime Solver",
+    "subtitle": "Explore 80C, 80CCD, and 80D tax-saving opportunities tailored to your gross income"
+  },
+  "sip": {
+    "title": "Active SIP Manager & Step-Up Scaling",
+    "subtitle": "Dynamically increase contributions, set annual salary step-ups, or simulate compounding multiplier impact"
   }
 }

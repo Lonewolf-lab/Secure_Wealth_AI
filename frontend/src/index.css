@@ -119,3 +119,46 @@ a:hover {
     padding: 0 1.5rem;
   }
 }
+
+/* ==========================================================================
+   GLOBAL CUSTOM THEME SCROLLBARS (Neon Glassmorphic System)
+   ========================================================================== */
+
+/* WebKit Engines (Chrome, Edge, Safari, Brave, Opera) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(10, 10, 15, 0.6);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 136, 0.25);
+  border-radius: 10px;
+  border: 1px solid rgba(0, 255, 136, 0.15);
+  transition: all 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00ff88;
+  box-shadow: 0 0 12px rgba(0, 255, 136, 0.8);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Universal Element Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 255, 136, 0.3) rgba(10, 10, 15, 0.6);
+}

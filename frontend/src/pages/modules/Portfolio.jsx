@@ -15,6 +15,7 @@ import {
   X,
   ShieldCheck
 } from 'lucide-react';
+import SIPAdjuster from '../../components/SIPAdjuster';
 import './Portfolio.css';
 
 const containerVariants = {
@@ -303,6 +304,9 @@ const Portfolio = () => {
         </motion.div>
 
       </div>
+
+      {/* Feature 3: SIP Adjustments & Step-Up Manager */}
+      <SIPAdjuster />
 
       {/* Assets & Investments Details Grid */}
       <div className="assets-details-grid">
