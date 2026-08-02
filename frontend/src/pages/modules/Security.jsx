@@ -135,8 +135,6 @@ const Security = () => {
       setGeneratingOtp(false);
     }
   };
-    }
-  };
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
