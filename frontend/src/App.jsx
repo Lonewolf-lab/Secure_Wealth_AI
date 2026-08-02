@@ -9,6 +9,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import { useAuth } from './context/AuthContext'
+import MobileApp from './pages/MobileApp'
 import './App.css'
 
 // Protected Route Component
@@ -70,6 +71,9 @@ function App() {
             </>
           } 
         />
+
+        {/* Dedicated Mobile App View */}
+        <Route path="/mobile" element={<MobileApp />} />
 
         {/* Protected Dashboard Routes */}
         <Route 

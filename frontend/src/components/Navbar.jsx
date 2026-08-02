@@ -42,6 +42,10 @@ const Navbar = () => {
           </div>
 
           <div className="nav-actions">
+            <Link to="/mobile" className="btn btn-secondary nav-btn-mobile" style={{ marginRight: '8px', color: '#00ff88', borderColor: '#00ff88' }}>
+              📱 MOBILE DEMO
+            </Link>
+
             {user ? (
               <div className="nav-user-greeting">
                 <Link to="/dashboard" className="btn btn-secondary nav-btn-dash">
