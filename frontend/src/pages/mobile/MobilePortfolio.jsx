@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '../../context/LanguageContext';
 import { 
   Wallet, 
   Target, 
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react';
 
 const MobilePortfolio = () => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('investments');
   const [selectedAsset, setSelectedAsset] = useState(null);
 
@@ -38,13 +40,13 @@ const MobilePortfolio = () => {
           className={`tab-pill ${activeTab === 'investments' ? 'active' : ''}`}
           onClick={() => setActiveTab('investments')}
         >
-          <Wallet size={16} /> Holdings ({mockInvestments.length})
+          <Wallet size={16} /> {t('portfolio.holdings')} ({mockInvestments.length})
         </button>
         <button 
           className={`tab-pill ${activeTab === 'goals' ? 'active' : ''}`}
           onClick={() => setActiveTab('goals')}
         >
-          <Target size={16} /> Goals ({mockGoals.length})
+          <Target size={16} /> {t('portfolio.goals')} ({mockGoals.length})
         </button>
       </div>
 
@@ -57,8 +59,8 @@ const MobilePortfolio = () => {
             animate={{ opacity: 1, y: 0 }}
           >
             <div className="card-top-row">
-              <span className="card-subtitle">TOTAL INVESTED VALUE</span>
-              <span className="gain-badge">+₹2,19,400 Total Returns</span>
+              <span className="card-subtitle">{t('portfolio.totalInvested')}</span>
+              <span className="gain-badge">+₹2,19,400 {t('portfolio.totalReturns')}</span>
             </div>
             <h2 className="total-holding-amount">₹16,80,000</h2>
             <div className="holding-breakdown-bar">
@@ -71,9 +73,9 @@ const MobilePortfolio = () => {
 
           {/* Investment List */}
           <div className="mobile-section-header">
-            <h3>Active Holdings</h3>
+            <h3>{t('portfolio.activeHoldings')}</h3>
             <button className="add-mini-btn">
-              <Plus size={14} /> Add Asset
+              <Plus size={14} /> {t('portfolio.addAsset')}
             </button>
           </div>
 
@@ -106,9 +108,9 @@ const MobilePortfolio = () => {
         <>
           {/* Goals Tracker */}
           <div className="mobile-section-header">
-            <h3>Milestone Goals</h3>
+            <h3>{t('portfolio.milestoneGoals')}</h3>
             <button className="add-mini-btn">
-              <Plus size={14} /> New Goal
+              <Plus size={14} /> {t('portfolio.newGoal')}
             </button>
           </div>
 
@@ -125,7 +127,7 @@ const MobilePortfolio = () => {
                   <div className="goal-card-header">
                     <div className="goal-title-group">
                       <h4>{goal.title}</h4>
-                      <span className="goal-deadline"><Calendar size={12} /> Target: {goal.deadline}</span>
+                      <span className="goal-deadline"><Calendar size={12} /> {t('common.target')}: {goal.deadline}</span>
                     </div>
                     <div className="goal-pct-pill">{progressPct}%</div>
                   </div>
@@ -135,8 +137,8 @@ const MobilePortfolio = () => {
                   </div>
 
                   <div className="goal-card-footer">
-                    <span className="saved-text">Saved: <strong>₹{goal.saved.toLocaleString('en-IN')}</strong></span>
-                    <span className="target-text">Target: ₹{goal.target.toLocaleString('en-IN')}</span>
+                    <span className="saved-text">{t('portfolio.saved')}: <strong>₹{goal.saved.toLocaleString('en-IN')}</strong></span>
+                    <span className="target-text">{t('portfolio.target')}: ₹{goal.target.toLocaleString('en-IN')}</span>
                   </div>
                 </motion.div>
               );
@@ -169,22 +171,14 @@ const MobilePortfolio = () => {
                   <span className="lbl">Overall Returns</span>
                   <span className="val positive">{selectedAsset.returns} (+₹{selectedAsset.gain.toLocaleString('en-IN')})</span>
                 </div>
-                <div className="detail-box">
-                  <span className="lbl">Risk Rating</span>
-                  <span className="val">{selectedAsset.risk}</span>
-                </div>
-                <div className="detail-box">
-                  <span className="lbl">WPRS Security</span>
-                  <span className="val safe">Verified Token</span>
-                </div>
               </div>
 
               <div className="modal-btn-row">
                 <button className="mobile-btn-cancel" onClick={() => setSelectedAsset(null)}>
-                  Close
+                  {t('common.close')}
                 </button>
                 <button className="mobile-btn-confirm" onClick={() => setSelectedAsset(null)}>
-                  Top-up SIP
+                  {t('common.confirm')}
                 </button>
               </div>
             </motion.div>

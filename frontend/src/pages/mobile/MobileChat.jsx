@@ -1,20 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useLanguage } from '../../context/LanguageContext';
 import { Send, Mic, Sparkles, BrainCircuit, User } from 'lucide-react';
 
 const MobileChat = () => {
+  const { t } = useLanguage();
   const [messages, setMessages] = useState([
     {
       id: 1,
       sender: 'bot',
-      text: "Hello! I am your PSB SecureWealth AI Assistant. Ask me anything about your portfolio, security rating, or tax saving strategies."
+      text: t('chat.welcomeMsg')
     }
   ]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const chatEndRef = useRef(null);
 
-  const quickPrompts = [
+  const quickPrompts = t('chat.prompts') || [
     "How to minimize tax under 80C?",
     "Why was my last transaction flagged?",
     "Show my 10-year wealth projection",
@@ -94,7 +96,7 @@ const MobileChat = () => {
 
       {/* Quick Prompts Bar */}
       <div className="quick-prompts-scroll">
-        {quickPrompts.map((prompt, idx) => (
+        {Array.isArray(quickPrompts) && quickPrompts.map((prompt, idx) => (
           <button key={idx} className="prompt-pill" onClick={() => handleSend(prompt)}>
             <Sparkles size={12} /> {prompt}
           </button>
@@ -105,7 +107,7 @@ const MobileChat = () => {
       <div className="chat-input-bar">
         <input 
           type="text"
-          placeholder="Ask AI Wealth Assistant..."
+          placeholder={t('chat.placeholder')}
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}

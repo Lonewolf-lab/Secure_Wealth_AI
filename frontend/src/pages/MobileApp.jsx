@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
+import LanguageSelector from '../components/LanguageSelector';
 import { 
   LayoutDashboard, 
   Wallet, 
@@ -30,6 +32,7 @@ import './MobileApp.css';
 
 const MobileApp = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('home');
   const [isDeviceFrame, setIsDeviceFrame] = useState(true);
   const [currentTime, setCurrentTime] = useState('09:41');
@@ -61,11 +64,11 @@ const MobileApp = () => {
   };
 
   const navItems = [
-    { id: 'home', label: 'Home', icon: <LayoutDashboard size={20} /> },
-    { id: 'portfolio', label: 'Portfolio', icon: <Wallet size={20} /> },
-    { id: 'advisor', label: 'AI Twin', icon: <BrainCircuit size={20} /> },
-    { id: 'security', label: 'Security', icon: <ShieldAlert size={20} /> },
-    { id: 'chat', label: 'Assistant', icon: <MessageSquareCode size={20} /> },
+    { id: 'home', label: t('nav.home'), icon: <LayoutDashboard size={20} /> },
+    { id: 'portfolio', label: t('nav.portfolio'), icon: <Wallet size={20} /> },
+    { id: 'advisor', label: t('nav.advisor'), icon: <BrainCircuit size={20} /> },
+    { id: 'security', label: t('nav.security'), icon: <ShieldAlert size={20} /> },
+    { id: 'chat', label: t('nav.assistant'), icon: <MessageSquareCode size={20} /> },
   ];
 
   const renderActiveTabContent = () => {
@@ -102,16 +105,18 @@ const MobileApp = () => {
       <header className="hackathon-presentation-bar">
         <div className="presentation-title">
           <Sparkles size={16} color="#00ff88" />
-          <span>PSB Hackathon Mobile Presentation Mode</span>
+          <span>PSB Hackathon Mobile Presentation</span>
         </div>
 
         <div className="presentation-actions">
+          <LanguageSelector compact={true} />
+
           <button 
             className="demo-trigger-btn danger" 
             onClick={() => setShowFraudModal(true)}
             title="Simulate High-Risk Transaction (WPRS > 60)"
           >
-            <ShieldAlert size={14} /> Simulate Fraud Threat
+            <ShieldAlert size={14} /> {t('home.simulateFraud')}
           </button>
 
           <button 
@@ -119,7 +124,7 @@ const MobileApp = () => {
             onClick={() => setShowOTPModal(true)}
             title="Simulate Step-Up OTP Verification"
           >
-            <Lock size={14} /> Step-Up Auth Modal
+            <Lock size={14} /> {t('home.testStepUp')}
           </button>
 
           <button 
@@ -127,14 +132,14 @@ const MobileApp = () => {
             onClick={() => setIsDeviceFrame(!isDeviceFrame)}
           >
             {isDeviceFrame ? <Monitor size={14} /> : <Smartphone size={14} />}
-            {isDeviceFrame ? 'Full Screen View' : 'Device Frame View'}
+            {isDeviceFrame ? 'Full Screen' : 'Frame View'}
           </button>
 
           <button 
             className="back-desktop-btn"
             onClick={() => navigate('/dashboard')}
           >
-            Desktop Portal ➔
+            Portal ➔
           </button>
         </div>
       </header>

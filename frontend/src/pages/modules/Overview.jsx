@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
+import { useLanguage } from '../../context/LanguageContext';
 import { 
   TrendingUp, 
   ArrowUpRight, 
@@ -15,6 +16,7 @@ import {
 import './Overview.css';
 
 const Overview = () => {
+  const { t } = useLanguage();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -80,10 +82,10 @@ const Overview = () => {
   const strokeDashoffset = circumference - (score / 1000) * circumference;
 
   const getScoreRating = (val) => {
-    if (val >= 800) return { label: 'EXCELLENT', color: '#00ff88' };
-    if (val >= 600) return { label: 'STRONG', color: '#00e5ff' };
-    if (val >= 400) return { label: 'MODERATE', color: '#ffb700' };
-    return { label: 'WEAK', color: '#ff3366' };
+    if (val >= 800) return { label: t('ratings.excellent'), color: '#00ff88' };
+    if (val >= 600) return { label: t('ratings.strong'), color: '#00e5ff' };
+    if (val >= 400) return { label: t('ratings.moderate'), color: '#ffb700' };
+    return { label: t('ratings.weak'), color: '#ff3366' };
   };
 
   const rating = getScoreRating(score);
@@ -96,8 +98,8 @@ const Overview = () => {
         {/* Circular Dial Card */}
         <div className="overview-card score-dial-card">
           <div className="card-header">
-            <h3>Circular Wealth Score</h3>
-            <span className="card-badge"><Award size={14} /> AI Health Twin</span>
+            <h3>{t('dashboard.circularScore')}</h3>
+            <span className="card-badge"><Award size={14} /> {t('dashboard.healthTwin')}</span>
           </div>
 
           <div className="dial-container">
@@ -137,7 +139,7 @@ const Overview = () => {
           <div className="component-scores-grid">
             <div className="comp-score-item">
               <div className="comp-score-info">
-                <span>Savings</span>
+                <span>{t('dashboard.savingsRate')}</span>
                 <span className="comp-score-val">{savingsScore} / 250</span>
               </div>
               <div className="comp-score-bar-bg">
@@ -147,7 +149,7 @@ const Overview = () => {
 
             <div className="comp-score-item">
               <div className="comp-score-info">
-                <span>Goals</span>
+                <span>{t('portfolio.goals')}</span>
                 <span className="comp-score-val">{goalScore} / 250</span>
               </div>
               <div className="comp-score-bar-bg">
@@ -157,7 +159,7 @@ const Overview = () => {
 
             <div className="comp-score-item">
               <div className="comp-score-info">
-                <span>Investments</span>
+                <span>{t('portfolio.holdings')}</span>
                 <span className="comp-score-val">{investmentScore} / 250</span>
               </div>
               <div className="comp-score-bar-bg">
@@ -167,7 +169,7 @@ const Overview = () => {
 
             <div className="comp-score-item">
               <div className="comp-score-info">
-                <span>Protection</span>
+                <span>{t('nav.security')}</span>
                 <span className="comp-score-val">{protectionScore} / 250</span>
               </div>
               <div className="comp-score-bar-bg">
@@ -182,10 +184,10 @@ const Overview = () => {
           <div className="stats-metric-card">
             <div className="metric-icon-box"><Wallet size={24} /></div>
             <div className="metric-details">
-              <span>TOTAL PORTFOLIO NET WORTH</span>
+              <span>{t('dashboard.netWorth')}</span>
               <h2>₹{totalNetWorth?.toLocaleString('en-IN') || '0'}</h2>
               <p className="metric-trendup">
-                <TrendingUp size={14} /> Integrated via PSB Aggregator
+                <TrendingUp size={14} /> {t('dashboard.psbIntegrated')}
               </p>
             </div>
           </div>
@@ -193,10 +195,10 @@ const Overview = () => {
           <div className="stats-metric-card">
             <div className="metric-icon-box"><Percent size={24} /></div>
             <div className="metric-details">
-              <span>MONTHLY SAVINGS RATE</span>
+              <span>{t('dashboard.savingsRate')}</span>
               <h2>{(monthlySavingsRate * 100).toFixed(1)}%</h2>
               <p className="metric-details-text">
-                Targeting ₹{((monthlyIncome || 0) * monthlySavingsRate).toLocaleString('en-IN')}/mo in savings
+                {t('dashboard.targetingSavings', { amount: `₹${((monthlyIncome || 0) * monthlySavingsRate).toLocaleString('en-IN')}` })}
               </p>
             </div>
           </div>
@@ -204,18 +206,18 @@ const Overview = () => {
           <div className="stats-metric-card">
             <div className="metric-icon-box"><Target size={24} /></div>
             <div className="metric-details">
-              <span>NEAREST FINANCIAL GOAL</span>
+              <span>{t('dashboard.nearestGoal')}</span>
               {topGoal ? (
                 <>
                   <h2>{topGoal.name}</h2>
                   <p className="metric-goal-sub">
-                    Target: ₹{topGoal.targetAmount?.toLocaleString('en-IN')} (Saved: {((topGoal.currentSaved/topGoal.targetAmount)*100).toFixed(0)}%)
+                    {t('common.target')}: ₹{topGoal.targetAmount?.toLocaleString('en-IN')} ({t('common.saved')}: {((topGoal.currentSaved/topGoal.targetAmount)*100).toFixed(0)}%)
                   </p>
                 </>
               ) : (
                 <>
-                  <h2>No Active Goals</h2>
-                  <p className="metric-goal-sub">Configure a goal milestone to begin tracking</p>
+                  <h2>{t('dashboard.noActiveGoals')}</h2>
+                  <p className="metric-goal-sub">{t('dashboard.configureGoal')}</p>
                 </>
               )}
             </div>
@@ -229,7 +231,7 @@ const Overview = () => {
         {/* Transaction History */}
         <div className="overview-card activity-card">
           <div className="card-header">
-            <h3>Recent Account Transactions</h3>
+            <h3>{t('dashboard.recentActivity')}</h3>
           </div>
           <div className="transactions-list-box">
             {recentTransactions && recentTransactions.length > 0 ? (
@@ -253,7 +255,7 @@ const Overview = () => {
                 ))}
               </div>
             ) : (
-              <p className="no-data-msg">No transactions found.</p>
+              <p className="no-data-msg">{t('dashboard.noTx')}</p>
             )}
           </div>
         </div>
@@ -261,7 +263,7 @@ const Overview = () => {
         {/* Market Bulletins */}
         <div className="overview-card bulletins-card">
           <div className="card-header">
-            <h3>SecureWealth Intelligence</h3>
+            <h3>{t('dashboard.intelligence')}</h3>
           </div>
           <div className="bulletins-container">
             {marketAlerts && marketAlerts.length > 0 ? (
@@ -276,7 +278,7 @@ const Overview = () => {
             ) : (
               <div className="no-bulletins">
                 <Shield size={24} className="shield-ok" />
-                <p>Security twin verified. All transaction parameters fall within expected standard deviations.</p>
+                <p>{t('dashboard.twinOk')}</p>
               </div>
             )}
           </div>

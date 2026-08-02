@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import './Login.css';
 
 const Login = () => {
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -62,10 +64,10 @@ const Login = () => {
       <div className="container login-grid">
         {/* Left Side: Mock Quick Login */}
         <div className="login-info-section">
-          <div className="section-label">HACKATHON QUICK ACCESS</div>
-          <h2 className="section-title">Select a Client Profile</h2>
+          <div className="section-label">{t('auth.quickAccess')}</div>
+          <h2 className="section-title">{t('auth.selectProfile')}</h2>
           <p className="section-subtitle">
-            Instantly simulate different wealth profiles, goal configurations, and asset categories seeded in the SecureWealth database.
+            {t('auth.quickSub')}
           </p>
 
           <div className="quick-login-list">
@@ -90,14 +92,14 @@ const Login = () => {
         {/* Right Side: Standard Login Form */}
         <div className="login-form-container">
           <div className="login-glass-card">
-            <h3 className="form-title">Secure Portal Access</h3>
-            <p className="form-subtitle">Enter credentials to securely connect to your Security Twin</p>
+            <h3 className="form-title">{t('auth.loginTitle')}</h3>
+            <p className="form-subtitle">{t('auth.loginSub')}</p>
 
             {error && <div className="login-error-message">{error}</div>}
 
             <form onSubmit={handleLoginSubmit} className="login-form">
               <div className="form-group">
-                <label htmlFor="email">CLIENT EMAIL ADDRESS</label>
+                <label htmlFor="email">{t('auth.emailLabel')}</label>
                 <input 
                   type="email" 
                   id="email" 
@@ -109,7 +111,7 @@ const Login = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="password">PORTAL PASSWORD</label>
+                <label htmlFor="password">{t('auth.passwordLabel')}</label>
                 <input 
                   type="password" 
                   id="password" 
@@ -125,12 +127,12 @@ const Login = () => {
                 className="btn btn-primary login-submit-btn" 
                 disabled={loading}
               >
-                {loading ? 'SECURING ACCESS...' : 'AUTHORIZE & LOG IN'}
+                {loading ? t('auth.securing') : t('auth.loginBtn')}
               </button>
             </form>
 
             <div className="form-switch-link" style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              New client? <Link to="/register" style={{ color: 'var(--accent-color)', fontWeight: 600 }}>Create an account</Link>
+              {t('auth.newClient')} <Link to="/register" style={{ color: 'var(--accent-color)', fontWeight: 600 }}>{t('auth.createAccount')}</Link>
             </div>
 
             <div className="form-disclaimer">

@@ -1,57 +1,41 @@
 import React from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import './Footer.css';
 
 const Footer = () => {
+  const { t } = useLanguage();
+
   return (
     <footer className="footer" id="contact">
       <div className="container">
         <div className="footer-grid">
           <div className="footer-brand">
             <h2>SecureWealth <span className="text-accent">AI</span></h2>
-            <p>Next-generation algorithmic wealth management.</p>
-            
-            <form className="newsletter-form">
-              <input type="email" placeholder="Enter your email for insights" className="newsletter-input" />
-              <button type="submit" className="btn btn-primary newsletter-btn">Subscribe</button>
-            </form>
+            <p>{t('hero.tagline')}</p>
           </div>
           
           <div className="footer-links-group">
-            <h3>Services</h3>
+            <h3>{t('nav.services')}</h3>
             <ul>
-              <li><a href="#">Algorithmic Trading</a></li>
-              <li><a href="#">Predictive Analytics</a></li>
-              <li><a href="#">Secure Vaults</a></li>
-              <li><a href="#">Institutional Grade</a></li>
+              <li><a href="#services">{t('services.twinTitle')}</a></li>
+              <li><a href="#services">{t('services.fraudTitle')}</a></li>
+              <li><a href="#services">{t('services.analyticsTitle')}</a></li>
+              <li><a href="#services">{t('services.taxTitle')}</a></li>
             </ul>
           </div>
           
           <div className="footer-links-group">
-            <h3>Company</h3>
+            <h3>{t('nav.platform')}</h3>
             <ul>
-              <li><a href="#">About Us</a></li>
-              <li><a href="#">Careers</a></li>
-              <li><a href="#">Security</a></li>
-              <li><a href="#">Contact</a></li>
-            </ul>
-          </div>
-          
-          <div className="footer-links-group">
-            <h3>Social</h3>
-            <ul>
-              <li><a href="#">LinkedIn</a></li>
-              <li><a href="#">Twitter (X)</a></li>
-              <li><a href="#">Instagram</a></li>
+              <li><a href="#services">{t('nav.home')}</a></li>
+              <li><a href="#services">{t('nav.security')}</a></li>
+              <li><a href="#services">{t('nav.portfolio')}</a></li>
             </ul>
           </div>
         </div>
         
         <div className="footer-bottom">
           <p>&copy; {new Date().getFullYear()} SecureWealth AI. All rights reserved.</p>
-          <div className="legal-links">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
-          </div>
         </div>
       </div>
     </footer>

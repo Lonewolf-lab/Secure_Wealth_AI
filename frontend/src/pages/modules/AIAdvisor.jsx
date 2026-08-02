@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
+import { useLanguage } from '../../context/LanguageContext';
 import { 
   BrainCircuit, 
   TrendingUp, 
@@ -17,6 +18,7 @@ import {
 import './AIAdvisor.css';
 
 const AIAdvisor = () => {
+  const { t } = useLanguage();
   // Personalized Recs State
   const [recs, setRecs] = useState([]);
   const [loadingRecs, setLoadingRecs] = useState(true);
@@ -58,7 +60,7 @@ const AIAdvisor = () => {
       setErrorRecs(null);
     } catch (err) {
       console.error('Failed to load personalized recommendations', err);
-      setErrorRecs('Advisor service offline.');
+      setErrorRecs(t('common.offline'));
     } finally {
       setLoadingRecs(false);
     }
@@ -69,7 +71,6 @@ const AIAdvisor = () => {
       const port = await api.get('/api/portfolio/');
       setPortfolioData(port);
       if (port) {
-        // Calculate current weights
         runRebalanceMVO(riskScore, port);
       }
     } catch (err) {
@@ -80,22 +81,18 @@ const AIAdvisor = () => {
   const runRebalanceMVO = async (score, port) => {
     setLoadingRebalance(true);
     try {
-      const p = port || portfolioData;
       let currentAllocation = {
         "Bonds": 0.25,
-        "Equity/Stocks": 0.25,
-        "Gold": 0.25,
-        "Mutual Funds": 0.25
+        "Equity/Stocks": 0.50,
+        "Gold": 0.15,
+        "Mutual Funds": 0.10
       };
 
-      if (p) {
-        const assets = p.assets || [];
-        const investments = p.investments || [];
-
-        const goldVal = assets.filter(a => a.type === 'GOLD').reduce((sum, a) => sum + (a.currentValue || 0), 0);
-        const bondsVal = investments.filter(i => i.type === 'FD' || i.type === 'PPF').reduce((sum, i) => sum + (i.amount || 0), 0);
-        const equityVal = investments.filter(i => i.type === 'STOCK').reduce((sum, i) => sum + (i.amount || 0), 0);
-        const mfVal = investments.filter(i => i.type === 'SIP' || i.type === 'ELSS').reduce((sum, i) => sum + (i.amount || 0), 0);
+      if (port && port.assets && port.investments) {
+        const goldVal = port.assets.filter(a => a.type === 'GOLD').reduce((acc, x) => acc + (x.currentValue || 0), 0);
+        const bondsVal = port.investments.filter(i => i.type === 'FD' || i.type === 'PPF').reduce((acc, x) => acc + (x.amount || 0), 0);
+        const equityVal = port.investments.filter(i => i.type === 'STOCK' || i.type === 'EQUITY').reduce((acc, x) => acc + (x.amount || 0), 0);
+        const mfVal = port.investments.filter(i => i.type === 'SIP' || i.type === 'MF' || i.type === 'ELSS' || i.type === 'MUTUAL_FUND').reduce((acc, x) => acc + (x.amount || 0), 0);
 
         const total = goldVal + bondsVal + equityVal + mfVal;
         if (total > 0) {
@@ -108,22 +105,16 @@ const AIAdvisor = () => {
         }
       }
 
-      // Call Python FastAPI service directly on port 8000
       const response = await fetch('http://localhost:8000/api/rebalance-portfolio', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           Risk_Appetite_Score: parseInt(score),
           current_allocation: currentAllocation
         })
       });
 
-      if (!response.ok) {
-        throw new Error('Rebalancer failed');
-      }
-
+      if (!response.ok) throw new Error('Rebalancer failed');
       const resData = await response.json();
       setRebalanceResult(resData);
     } catch (err) {
@@ -137,17 +128,14 @@ const AIAdvisor = () => {
     setActiveSeries(series);
     setLoadingForecast(true);
     try {
-      // Call Python FastAPI service directly on port 8000
       const response = await fetch(`http://localhost:8000/api/market-forecast/${series}?days=30`);
-      if (!response.ok) {
-        throw new Error('Forecast offline');
-      }
+      if (!response.ok) throw new Error('Forecast offline');
       const data = await response.json();
       setForecast(data.forecast || []);
       setErrorForecast(null);
     } catch (err) {
       console.error('Market forecast unreachable', err);
-      setErrorForecast('Forecast engine offline.');
+      setErrorForecast(t('common.offline'));
       setForecast([]);
     } finally {
       setLoadingForecast(false);
@@ -170,17 +158,14 @@ const AIAdvisor = () => {
     e.preventDefault();
     setSolvingTax(true);
     try {
-      // Fetch user profile age to match model constraints (default 30)
       const age = 30; 
       const response = await fetch('http://localhost:8000/api/tax-saving?regime=new', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           Age: age,
           Annual_Income_INR: parseFloat(grossIncome),
-          Current_Savings_INR: 500000.0, // default tracking
+          Current_Savings_INR: 500000.0,
           Monthly_Disposable_Income_INR: parseFloat(grossIncome) * 0.3 / 12,
           Tax_Bracket: "30%",
           Financial_Goal: "Tax Saving",
@@ -189,15 +174,11 @@ const AIAdvisor = () => {
         })
       });
 
-      if (!response.ok) {
-        throw new Error('Tax solver failed');
-      }
-
+      if (!response.ok) throw new Error('Tax solver failed');
       const data = await response.json();
       setTaxRegimeResult(data);
     } catch (err) {
       console.error('Failed to solve tax regime comparison', err);
-      alert('Tax calculation error.');
     } finally {
       setSolvingTax(false);
     }
@@ -209,7 +190,6 @@ const AIAdvisor = () => {
     runRebalanceMVO(val, portfolioData);
   };
 
-  // SVG Line Path Calculation for Forecast
   const getForecastLine = () => {
     if (forecast.length < 2) return '';
     const width = 500;
@@ -231,21 +211,33 @@ const AIAdvisor = () => {
   const forecastPath = getForecastLine();
 
   return (
-    <div className="advisor-content-wrapper">
-      
-      {/* Upper Grid: AI personalized Recs & Forecast */}
-      <div className="advisor-upper-grid">
+    <div className="advisor-panel-content">
+      {/* Top Banner */}
+      <div className="advisor-header-banner">
+        <div className="banner-title-group">
+          <BrainCircuit size={28} className="banner-icon" />
+          <div>
+            <h2>{t('advisor.header')}</h2>
+            <p>{t('advisor.subHeader')}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Top Row: Recommendations & Market Predictions */}
+      <div className="advisor-top-grid">
         
-        {/* Personalized Recommendations */}
+        {/* Smart Recommendations Panel */}
         <div className="advisor-card recs-card">
           <div className="card-header-plain">
-            <h3>AI Wealth Advisor</h3>
-            <span className="card-header-icon-badge"><BrainCircuit size={16} /></span>
+            <h3>{t('advisor.smartRecs')}</h3>
           </div>
 
-          <div className="recs-scroll-container">
+          <div className="recs-container">
             {loadingRecs ? (
-              <p className="loading-advisor-msg">Scanning profile metrics...</p>
+              <div className="recs-loading">
+                <div className="spinner"></div>
+                <p>{t('common.loading')}</p>
+              </div>
             ) : errorRecs ? (
               <p className="error-advisor-msg">{errorRecs}</p>
             ) : recs.length > 0 ? (
@@ -263,13 +255,11 @@ const AIAdvisor = () => {
                       <Info size={14} />
                       <p>{rec.explanation}</p>
                     </div>
-
-                    <span className="rec-trigger-label">Trigger: {rec.marketTrigger}</span>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="no-data-msg">No advisor recommendations generated.</p>
+              <p className="no-data-msg">{t('common.noData')}</p>
             )}
           </div>
         </div>
@@ -279,29 +269,21 @@ const AIAdvisor = () => {
           <div className="card-header-plain">
             <h3>30-Day Market Predictions</h3>
             <div className="series-selectors">
-              <button className={activeSeries === 'stocks' ? 'active' : ''} onClick={() => fetchMarketForecast('stocks')}>Stocks</button>
-              <button className={activeSeries === 'gold' ? 'active' : ''} onClick={() => fetchMarketForecast('gold')}>Gold</button>
+              <button className={activeSeries === 'stocks' ? 'active' : ''} onClick={() => fetchMarketForecast('stocks')}>{t('advisor.equity')}</button>
+              <button className={activeSeries === 'gold' ? 'active' : ''} onClick={() => fetchMarketForecast('gold')}>{t('advisor.goldAsset')}</button>
               <button className={activeSeries === 'inflation' ? 'active' : ''} onClick={() => fetchMarketForecast('inflation')}>Inflation</button>
             </div>
           </div>
 
           <div className="forecast-chart-container">
             {loadingForecast ? (
-              <div className="forecast-chart-loading">Computing Prophet trends...</div>
+              <div className="forecast-chart-loading">{t('common.loading')}</div>
             ) : errorForecast ? (
               <p className="error-advisor-msg">{errorForecast}</p>
             ) : forecast.length > 0 ? (
               <div className="forecast-visualization-box">
                 <svg viewBox="0 0 500 150" width="100%" height="150" className="svg-networth-chart">
                   <path d={forecastPath} fill="none" stroke="#00ff88" strokeWidth="2.5" strokeLinecap="round" />
-                  
-                  {/* Min / Max labels */}
-                  {forecast.length > 0 && (
-                    <>
-                      <circle cx="20" cy="75" r="4" fill="#00ff88" />
-                      <circle cx="480" cy="75" r="4" fill="#00ff88" />
-                    </>
-                  )}
                 </svg>
 
                 <div className="forecast-endpoints-row">
@@ -318,12 +300,8 @@ const AIAdvisor = () => {
                 </div>
               </div>
             ) : (
-              <p className="no-data-msg">No market forecasts loaded.</p>
+              <p className="no-data-msg">{t('common.noData')}</p>
             )}
-          </div>
-
-          <div className="forecast-disclaimer-text">
-            *Prophet time-series predictions. For informational purposes only.
           </div>
         </div>
 
@@ -332,9 +310,9 @@ const AIAdvisor = () => {
       {/* Middle Grid: MPT Rebalancer */}
       <div className="advisor-card rebalancer-card-box">
         <div className="card-header-plain">
-          <h3>Mean-Variance Optimization (Markowitz Rebalancer)</h3>
+          <h3>{t('advisor.mptTitle')}</h3>
           <div className="risk-slider-container">
-            <label>RISK appetite: <strong>{riskScore}</strong></label>
+            <label>{t('advisor.riskLevel')}: <strong>{riskScore}</strong></label>
             <input 
               type="range" 
               min="1" 
@@ -347,13 +325,13 @@ const AIAdvisor = () => {
         </div>
 
         {loadingRebalance ? (
-          <p className="rebalance-loading-msg">Running solver matrices...</p>
+          <p className="rebalance-loading-msg">{t('common.loading')}</p>
         ) : rebalanceResult ? (
           <div className="rebalancer-grid">
             
             {/* Optimal Weights Allocation Chart */}
             <div className="rebalancer-weights-box">
-              <h4>Target Asset Allocation</h4>
+              <h4>{t('advisor.targetAllocation')}</h4>
               <div className="weights-bars-container">
                 {Object.entries(rebalanceResult.recommended_weights || {}).map(([asset, weight]) => (
                   <div key={asset} className="weight-bar-item">
@@ -367,26 +345,11 @@ const AIAdvisor = () => {
                   </div>
                 ))}
               </div>
-
-              <div className="frontier-meta-box">
-                <div className="meta-metric">
-                  <span>EXPECTED RETURN</span>
-                  <strong>{rebalanceResult.expected_return_pct}%</strong>
-                </div>
-                <div className="meta-metric">
-                  <span>EXPECTED VOLATILITY</span>
-                  <strong>{rebalanceResult.expected_volatility_pct}%</strong>
-                </div>
-                <div className="meta-metric">
-                  <span>SHARPE RATIO</span>
-                  <strong style={{ color: '#00ff88' }}>{rebalanceResult.sharpe_ratio}</strong>
-                </div>
-              </div>
             </div>
 
             {/* Concrete buy/sell execution actions */}
             <div className="rebalancer-actions-box">
-              <h4>Rebalancing Execution Steps</h4>
+              <h4>{t('advisor.mptTitle')}</h4>
               {rebalanceResult.rebalancing_actions && rebalanceResult.rebalancing_actions.length > 0 ? (
                 <div className="actions-steps-list">
                   {rebalanceResult.rebalancing_actions.map((act, idx) => (
@@ -395,80 +358,71 @@ const AIAdvisor = () => {
                         <h5>{act.asset_class}</h5>
                         <span className={`badge-action ${act.action}`}>{act.action}</span>
                       </div>
-                      
-                      <div className="step-delta-details">
-                        <span>Current: {act.current_weight_pct}%</span>
-                        <span>Target: {act.recommended_weight_pct}%</span>
-                        <strong className="delta-indicator">
-                          {act.change_percentage_points > 0 ? '+' : ''}{act.change_percentage_points}%
-                        </strong>
-                      </div>
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="empty-panel-actions">
-                  <p>Your current allocations are perfectly aligned with the optimal efficient frontier at risk appetite {riskScore}. No adjustments required.</p>
+                  <p>{t('advisor.recApplied')}</p>
                 </div>
               )}
             </div>
 
           </div>
         ) : (
-          <p className="no-data-msg">Rebalancing solver offline.</p>
+          <p className="no-data-msg">{t('common.offline')}</p>
         )}
       </div>
 
       {/* Lower Row: Tax savings optimizer */}
       <div className="advisor-card tax-optimizer-box">
         <div className="card-header-plain">
-          <h3>Section 80C Tax-Saving Optimizer</h3>
+          <h3>{t('advisor.taxOptimizerTitle')}</h3>
         </div>
 
         <div className="tax-dashboard-grid">
           
           {/* Active tax recs */}
           <div className="tax-recs-column">
-            <h4>Deduction Highlights</h4>
+            <h4>{t('advisor.sec80C')}</h4>
             {loadingTax ? (
-              <p className="loading-advisor-msg">Analyzing deductions...</p>
+              <p className="loading-advisor-msg">{t('common.loading')}</p>
             ) : taxRecs.length > 0 ? (
               <div className="tax-recs-list">
-                {taxRecs.map((t, idx) => (
+                {taxRecs.map((tRec, idx) => (
                   <div key={idx} className="tax-rec-item-card">
                     <div className="tax-rec-header">
-                      <span className="tax-section-badge">Section {t.section}</span>
-                      <span className="tax-instrument-text">{t.instrument}</span>
+                      <span className="tax-section-badge">Section {tRec.section}</span>
+                      <span className="tax-instrument-text">{tRec.instrument}</span>
                     </div>
                     
-                    <p className="tax-rec-explanation">{t.explanation}</p>
+                    <p className="tax-rec-explanation">{tRec.explanation}</p>
                     
                     <div className="tax-amounts-row">
                       <div className="amt-box">
-                        <span>SUGGESTED ALLOCATION</span>
-                        <strong>₹{t.suggestedAmount?.toLocaleString('en-IN')}</strong>
+                        <span>{t('advisor.currentDeduction')}</span>
+                        <strong>₹{tRec.suggestedAmount?.toLocaleString('en-IN')}</strong>
                       </div>
                       <div className="amt-box right">
-                        <span>POTENTIAL SAVINGS</span>
-                        <strong className="savings-highlight">₹{t.potentialTaxSaving?.toLocaleString('en-IN')}</strong>
+                        <span>{t('advisor.potentialSavings')}</span>
+                        <strong className="savings-highlight">₹{tRec.potentialTaxSaving?.toLocaleString('en-IN')}</strong>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="no-data-msg">No tax optimization suggestions available.</p>
+              <p className="no-data-msg">{t('common.noData')}</p>
             )}
           </div>
 
           {/* Tax Slab Solver comparison */}
           <div className="tax-comparison-form-column">
-            <h4>Old vs New Regime Solver</h4>
-            <p className="tax-solver-desc">Compute slab liabilities side-by-side adjusted for Budget 2025/2026 guidelines.</p>
+            <h4>{t('advisor.regimeSolver')}</h4>
             
             <form onSubmit={handleSolveTax} className="tax-solver-form">
               <div className="form-group">
-                <label>GROSS ANNUAL INCOME (INR)</label>
+                <label>{t('advisor.grossIncome')}</label>
                 <div className="input-with-action">
                   <input 
                     type="number" 
@@ -478,7 +432,7 @@ const AIAdvisor = () => {
                     required
                   />
                   <button type="submit" className="btn btn-primary btn-tax-solve" disabled={solvingTax}>
-                    {solvingTax ? 'SOLVING...' : 'SOLVE'}
+                    {solvingTax ? t('common.submitting') : t('advisor.solveRegime')}
                   </button>
                 </div>
               </div>
@@ -488,45 +442,14 @@ const AIAdvisor = () => {
               <div className="tax-solver-results">
                 <div className="comparison-winner-badge">
                   <Sparkles size={16} />
-                  <span>RECOMMENDED REGIME: </span>
+                  <span>{t('advisor.recommended')}: </span>
                   <strong>{taxRegimeResult.recommended_regime?.toUpperCase()}</strong>
-                </div>
-
-                <div className="comparison-table-wrapper">
-                  <table className="comparison-table">
-                    <thead>
-                      <tr>
-                        <th>REGIME</th>
-                        <th>SLAB TAX</th>
-                        <th>DEDUCTIONS</th>
-                        <th>FINAL LIABILITY</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className={taxRegimeResult.recommended_regime === 'old' ? 'winner-row' : ''}>
-                        <td><strong>Old Regime (Maxed)</strong></td>
-                        <td>₹{taxRegimeResult.comparison?.old_regime_tax_inr_no_deductions?.toLocaleString('en-IN')}</td>
-                        <td>₹{(taxRegimeResult.comparison?.old_regime_tax_inr_no_deductions - taxRegimeResult.comparison?.old_regime_tax_inr_fully_maxed > 0 ? (taxRegimeResult.comparison?.old_regime_tax_inr_no_deductions - taxRegimeResult.comparison?.old_regime_tax_inr_fully_maxed) : 0).toLocaleString('en-IN')}</td>
-                        <td className="final-tax-val">₹{taxRegimeResult.comparison?.old_regime_tax_inr_fully_maxed?.toLocaleString('en-IN')}</td>
-                      </tr>
-                      <tr className={taxRegimeResult.recommended_regime === 'new' ? 'winner-row' : ''}>
-                        <td><strong>New Regime</strong></td>
-                        <td>₹{taxRegimeResult.comparison?.new_regime_tax_inr?.toLocaleString('en-IN')}</td>
-                        <td>₹0</td>
-                        <td className="final-tax-val">₹{taxRegimeResult.comparison?.new_regime_tax_inr?.toLocaleString('en-IN')}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="net-savings-callout">
-                  Net Tax Savings: <strong style={{ color: '#00ff88' }}>₹{Math.abs(taxRegimeResult.comparison?.old_regime_tax_inr_fully_maxed - taxRegimeResult.comparison?.new_regime_tax_inr).toLocaleString('en-IN')}</strong>
                 </div>
               </div>
             ) : (
               <div className="empty-panel tax-placeholder">
                 <Calculator size={24} />
-                <p>Submit your gross income above to evaluate Old vs New progressive tax slab comparisons.</p>
+                <p>{t('advisor.regimeSolver')}</p>
               </div>
             )}
           </div>

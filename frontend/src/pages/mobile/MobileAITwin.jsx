@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useLanguage } from '../../context/LanguageContext';
 import { 
   BrainCircuit, 
   Sparkles, 
@@ -13,6 +14,7 @@ import {
 } from 'lucide-react';
 
 const MobileAITwin = ({ onNavigate }) => {
+  const { t } = useLanguage();
   const [simulationYear, setSimulationYear] = useState(10);
   const [monthlySip, setMonthlySip] = useState(15000);
   const [rebalanceApplied, setRebalanceApplied] = useState(false);
@@ -55,13 +57,13 @@ const MobileAITwin = ({ onNavigate }) => {
           </div>
           <span className="ai-status-pulse">● Live Inference</span>
         </div>
-        <h2>Personalized Advisory Engine</h2>
-        <p>Combining quantitative risk models with local Llama 3.2 explainable LLM reasoning.</p>
+        <h2>{t('advisor.aiEngine')}</h2>
+        <p>{t('advisor.aiSub')}</p>
       </motion.div>
 
       {/* AI Recommendations */}
       <div className="mobile-section-header">
-        <h3>Smart Recommendations</h3>
+        <h3>{t('advisor.smartRecs')}</h3>
       </div>
 
       <div className="recommendations-list">
@@ -85,7 +87,7 @@ const MobileAITwin = ({ onNavigate }) => {
               }}
             >
               {rebalanceApplied ? <CheckCircle2 size={14} /> : <Zap size={14} />}
-              {rebalanceApplied ? 'Rebalance Order Created' : 'Apply AI Recommendation'}
+              {rebalanceApplied ? t('advisor.recApplied') : t('advisor.applyRec')}
             </button>
           </motion.div>
         ))}
@@ -93,7 +95,7 @@ const MobileAITwin = ({ onNavigate }) => {
 
       {/* Monte Carlo What-If Simulator */}
       <div className="mobile-section-header">
-        <h3>Monte Carlo Wealth Simulator</h3>
+        <h3>{t('advisor.monteCarlo')}</h3>
       </div>
 
       <div className="simulator-card">
@@ -104,7 +106,7 @@ const MobileAITwin = ({ onNavigate }) => {
 
         <div className="sim-slider-group">
           <div className="slider-label-row">
-            <span>Investment Horizon</span>
+            <span>{t('advisor.horizon')}</span>
             <span className="slider-val">{simulationYear} Years</span>
           </div>
           <input 
@@ -125,7 +127,7 @@ const MobileAITwin = ({ onNavigate }) => {
 
         <div className="sim-slider-group">
           <div className="slider-label-row">
-            <span>Monthly SIP Contribution</span>
+            <span>{t('advisor.monthlySip')}</span>
             <span className="slider-val">₹{monthlySip.toLocaleString('en-IN')}/mo</span>
           </div>
           <input 
@@ -142,15 +144,15 @@ const MobileAITwin = ({ onNavigate }) => {
         {/* Projection Outputs */}
         <div className="projection-results">
           <div className="proj-box p10">
-            <span className="proj-label">P10 (Conservative)</span>
+            <span className="proj-label">{t('advisor.conservative')}</span>
             <span className="proj-amount">₹{(conservativeP10 / 100000).toFixed(1)} Lakhs</span>
           </div>
           <div className="proj-box p50 highlight">
-            <span className="proj-label">P50 (Expected)</span>
+            <span className="proj-label">{t('advisor.expected')}</span>
             <span className="proj-amount">₹{(expectedP50 / 100000).toFixed(1)} Lakhs</span>
           </div>
           <div className="proj-box p90">
-            <span className="proj-label">P90 (Aggressive)</span>
+            <span className="proj-label">{t('advisor.aggressive')}</span>
             <span className="proj-amount">₹{(aggressiveP90 / 100000).toFixed(1)} Lakhs</span>
           </div>
         </div>

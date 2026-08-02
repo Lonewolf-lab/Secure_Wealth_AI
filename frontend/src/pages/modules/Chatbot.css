@@ -240,39 +240,76 @@
 
 /* Input Bar */
 .chatbot-input-bar {
-  padding: 1.2rem 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 1rem 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
-  gap: 1rem;
-  background: rgba(0, 0, 0, 0.15);
+  gap: 0.8rem;
+  background: rgba(0, 0, 0, 0.25);
+  align-items: center;
   flex-shrink: 0;
 }
 
 .chatbot-input-bar input {
   flex-grow: 1;
-  padding: 0.9rem 1.2rem;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0.85rem 1.3rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
-  color: #fff;
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  transition: all var(--transition-fast);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.92rem;
+  transition: all 0.2s ease;
 }
 
 .chatbot-input-bar input:focus {
   outline: none;
-  border-color: var(--accent-color);
-  box-shadow: 0 0 10px rgba(0, 255, 136, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: #00ff88;
+  box-shadow: 0 0 14px rgba(0, 255, 136, 0.25);
+}
+
+.chatbot-input-bar input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
 }
 
 .btn-send {
-  width: 46px;
-  height: 46px;
-  padding: 0 !important;
-  border-radius: 12px !important;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 12px;
+  background: #00ff88;
+  color: #050505;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-send:hover:not(:disabled) {
+  background: #00e077;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 255, 136, 0.35);
+}
+
+.btn-send:disabled {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: not-allowed;
+}
+
+.chatbot-disclaimer-bar {
+  padding: 0.4rem 2rem 0.9rem 2rem;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.chatbot-disclaimer-bar p {
+  margin: 0;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: center;
+  line-height: 1.4;
 }

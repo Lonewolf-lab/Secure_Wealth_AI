@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '../../context/LanguageContext';
 import { 
   ShieldAlert, 
   ShieldCheck, 
@@ -15,6 +16,7 @@ import {
 } from 'lucide-react';
 
 const MobileSecurity = ({ onTriggerFraud, onTriggerOTP }) => {
+  const { t } = useLanguage();
   const [wprsScore, setWprsScore] = useState(12);
   const [wprsDecision, setWprsDecision] = useState('ALLOW');
   const [activeSimulation, setActiveSimulation] = useState(null);
@@ -53,8 +55,8 @@ const MobileSecurity = ({ onTriggerFraud, onTriggerOTP }) => {
             {wprsDecision === 'WARN' && <AlertTriangle size={28} color="#ffb703" />}
             {wprsDecision === 'BLOCK' && <ShieldAlert size={28} color="#ff4d4d" />}
             <div>
-              <h3>Security Twin WPRS</h3>
-              <span className="subtitle">Wealth Protection Rating System</span>
+              <h3>{t('security.wprsTitle')}</h3>
+              <span className="subtitle">{t('security.wprsSub')}</span>
             </div>
           </div>
           <div className={`wprs-score-bubble ${wprsDecision.toLowerCase()}`}>
@@ -65,17 +67,17 @@ const MobileSecurity = ({ onTriggerFraud, onTriggerOTP }) => {
         <div className="decision-banner">
           {wprsDecision === 'ALLOW' && (
             <div className="banner-status safe">
-              <CheckCircle2 size={16} /> Status: <strong>ALLOW</strong> (Normal Cadence)
+              <CheckCircle2 size={16} /> {t('security.status')}: <strong>{t('common.safe')}</strong> (ALLOW)
             </div>
           )}
           {wprsDecision === 'WARN' && (
             <div className="banner-status warning">
-              <AlertTriangle size={16} /> Status: <strong>WARN</strong> (Step-Up Challenge Required)
+              <AlertTriangle size={16} /> {t('security.status')}: <strong>{t('common.warn')}</strong> (WARN)
             </div>
           )}
           {wprsDecision === 'BLOCK' && (
             <div className="banner-status danger">
-              <XCircle size={16} /> Status: <strong>BLOCK</strong> (Forbidden High Risk)
+              <XCircle size={16} /> {t('security.status')}: <strong>{t('common.block')}</strong> (BLOCK)
             </div>
           )}
         </div>
@@ -84,7 +86,7 @@ const MobileSecurity = ({ onTriggerFraud, onTriggerOTP }) => {
         <div className="behavior-metrics-grid">
           <div className="metric-box">
             <span className="metric-lbl">Device Trust</span>
-            <span className="metric-val text-accent">VERIFIED</span>
+            <span className="metric-val text-accent">{t('security.verified')}</span>
           </div>
           <div className="metric-box">
             <span className="metric-lbl">Cadence Speed</span>
@@ -103,21 +105,17 @@ const MobileSecurity = ({ onTriggerFraud, onTriggerOTP }) => {
 
       {/* Hackathon Demo Live Controls */}
       <div className="mobile-section-header">
-        <h3>Hackathon Demo Controls</h3>
+        <h3>{t('security.demoControls')}</h3>
       </div>
 
       <div className="demo-controls-card">
-        <p className="demo-desc">
-          Test real-time WPRS interceptor responses for your presentation pitch:
-        </p>
-
         <div className="demo-btn-group">
           <button 
             className={`demo-btn btn-safe ${activeSimulation === 'safe' ? 'active' : ''}`}
             onClick={handleSimulateSafe}
           >
             <ShieldCheck size={16} />
-            <span>Normal Behavior (Allow)</span>
+            <span>{t('security.normalBehavior')}</span>
           </button>
 
           <button 
@@ -125,7 +123,7 @@ const MobileSecurity = ({ onTriggerFraud, onTriggerOTP }) => {
             onClick={handleSimulateWarn}
           >
             <Key size={16} />
-            <span>Step-Up OTP Challenge (Warn)</span>
+            <span>{t('security.stepUpChallenge')}</span>
           </button>
 
           <button 
@@ -133,14 +131,14 @@ const MobileSecurity = ({ onTriggerFraud, onTriggerOTP }) => {
             onClick={handleSimulateBlock}
           >
             <ShieldAlert size={16} />
-            <span>Fraud & Rogue Device (Block)</span>
+            <span>{t('security.fraudThreat')}</span>
           </button>
         </div>
       </div>
 
       {/* Trusted Devices Section */}
       <div className="mobile-section-header">
-        <h3>Registered Devices</h3>
+        <h3>{t('security.registeredDevices')}</h3>
       </div>
 
       <div className="device-list">
@@ -150,16 +148,7 @@ const MobileSecurity = ({ onTriggerFraud, onTriggerOTP }) => {
             <span className="device-name">iPhone 16 Pro (This Mobile Device)</span>
             <span className="device-meta">Fingerprint: fp-982a7f... • Active Now</span>
           </div>
-          <span className="trusted-tag">Primary</span>
-        </div>
-
-        <div className="device-item">
-          <Smartphone size={20} className="device-icon" />
-          <div className="device-info">
-            <span className="device-name">MacBook Pro Chrome (Web App)</span>
-            <span className="device-meta">Fingerprint: fp-143c1b... • Last seen 2h ago</span>
-          </div>
-          <span className="trusted-tag muted">Trusted</span>
+          <span className="trusted-tag">{t('security.primary')}</span>
         </div>
       </div>
     </div>

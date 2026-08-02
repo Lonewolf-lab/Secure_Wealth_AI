@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
       }
 
       const data = await response.json();
-      
+
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify({
         userId: data.userId,
@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }) => {
       }
 
       const data = await response.json();
-      
+
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify({
         userId: data.userId,

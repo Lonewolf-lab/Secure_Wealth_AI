@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '../../context/LanguageContext';
 import { 
   TrendingUp, 
   ArrowUpRight, 
@@ -18,6 +19,7 @@ import {
 } from 'lucide-react';
 
 const MobileHome = ({ onNavigate, onTriggerFraud, onTriggerOTP }) => {
+  const { t } = useLanguage();
   const [showBalance, setShowBalance] = useState(true);
   const [selectedQuickAction, setSelectedQuickAction] = useState(null);
   const [investAmount, setInvestAmount] = useState('25000');
@@ -28,10 +30,10 @@ const MobileHome = ({ onNavigate, onTriggerFraud, onTriggerOTP }) => {
   const mockMonthlyGain = '+₹42,800 (+1.75%)';
 
   const quickActions = [
-    { id: 'invest', label: 'Invest Now', icon: <Plus size={20} />, color: '#00ff88' },
-    { id: 'transfer', label: 'UPI Send', icon: <Send size={20} />, color: '#3b82f6' },
-    { id: 'ai', label: 'AI Advice', icon: <BrainCircuit size={20} />, color: '#a855f7' },
-    { id: 'security', label: 'WPRS Scan', icon: <ShieldAlert size={20} />, color: '#ffb703' },
+    { id: 'invest', label: t('home.investNow'), icon: <Plus size={20} />, color: '#00ff88' },
+    { id: 'transfer', label: t('home.upiSend'), icon: <Send size={20} />, color: '#3b82f6' },
+    { id: 'ai', label: t('home.aiAdvice'), icon: <BrainCircuit size={20} />, color: '#a855f7' },
+    { id: 'security', label: t('home.wprsScan'), icon: <ShieldAlert size={20} />, color: '#ffb703' },
   ];
 
   const recentTransactions = [
@@ -80,13 +82,13 @@ const MobileHome = ({ onNavigate, onTriggerFraud, onTriggerOTP }) => {
       >
         <div className="networth-header">
           <div className="networth-title-group">
-            <span className="networth-label">TOTAL NET WORTH</span>
+            <span className="networth-label">{t('home.netWorthLabel')}</span>
             <button className="eye-btn" onClick={() => setShowBalance(!showBalance)}>
               {showBalance ? <Eye size={16} /> : <EyeOff size={16} />}
             </button>
           </div>
           <div className="security-badge-pill">
-            <ShieldCheck size={14} /> WPRS Active (12)
+            <ShieldCheck size={14} /> {t('home.wprsActive')} (12)
           </div>
         </div>
 
@@ -102,7 +104,7 @@ const MobileHome = ({ onNavigate, onTriggerFraud, onTriggerOTP }) => {
           <span className="growth-pill positive">
             <TrendingUp size={14} /> {mockMonthlyGain}
           </span>
-          <span className="growth-subtext">vs last month</span>
+          <span className="growth-subtext">{t('home.vsLastMonth')}</span>
         </div>
 
         {/* Dynamic Asset Pills */}
@@ -150,14 +152,14 @@ const MobileHome = ({ onNavigate, onTriggerFraud, onTriggerOTP }) => {
           <Zap size={22} className="pulse-icon" />
         </div>
         <div className="feature-banner-content">
-          <h4>PSB Security Twin Guard</h4>
-          <p>Behavioral AI monitoring device biometrics & action cadence in real time.</p>
+          <h4>{t('home.psbGuardTitle')}</h4>
+          <p>{t('home.psbGuardDesc')}</p>
           <div className="banner-action-row">
             <button className="banner-btn" onClick={onTriggerOTP}>
-              <Lock size={12} /> Test Step-Up Verification
+              <Lock size={12} /> {t('home.testStepUp')}
             </button>
             <button className="banner-btn danger" onClick={onTriggerFraud}>
-              <ShieldAlert size={12} /> Simulate Fraud Threat
+              <ShieldAlert size={12} /> {t('home.simulateFraud')}
             </button>
           </div>
         </div>
@@ -165,9 +167,9 @@ const MobileHome = ({ onNavigate, onTriggerFraud, onTriggerOTP }) => {
 
       {/* Recent Activity Feed */}
       <div className="mobile-section-header">
-        <h3>Recent Activity</h3>
+        <h3>{t('home.recentActivity')}</h3>
         <button className="see-all-btn" onClick={() => onNavigate('portfolio')}>
-          View All <ChevronRight size={16} />
+          {t('home.viewAll')} <ChevronRight size={16} />
         </button>
       </div>
 
@@ -206,19 +208,19 @@ const MobileHome = ({ onNavigate, onTriggerFraud, onTriggerOTP }) => {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="modal-handle"></div>
-              <h3>Execute Quick Investment</h3>
-              <p className="modal-sub">Protected by PSB Security Twin Interceptor</p>
+              <h3>{t('home.executeInvest')}</h3>
+              <p className="modal-sub">{t('home.psbGuardDesc')}</p>
 
               {investSuccess ? (
                 <div className="modal-success-box">
                   <CheckCircle2 size={48} color="#00ff88" />
-                  <h4>Investment Executed!</h4>
+                  <h4>{t('home.investSuccess')}</h4>
                   <p>Added ₹{parseInt(investAmount).toLocaleString('en-IN')} to PSB Mutual Growth Fund.</p>
                 </div>
               ) : (
                 <>
                   <div className="invest-input-group">
-                    <label>Amount (INR)</label>
+                    <label>{t('common.target')}</label>
                     <div className="amount-input-wrapper">
                       <span>₹</span>
                       <input 
@@ -232,20 +234,20 @@ const MobileHome = ({ onNavigate, onTriggerFraud, onTriggerOTP }) => {
                   <div className="quick-presets">
                     <button onClick={() => setInvestAmount('5000')}>₹5,000</button>
                     <button onClick={() => setInvestAmount('25000')}>₹25,000</button>
-                    <button onClick={() => setInvestAmount('150000')}>₹1.5L (Triggers Threat)</button>
+                    <button onClick={() => setInvestAmount('150000')}>₹1.5L</button>
                   </div>
 
                   <div className="wprs-preview-note">
                     <ShieldCheck size={16} /> 
-                    <span>WPRS Rating check: {parseInt(investAmount) > 100000 ? '⚠️ High Risk (Score > 60)' : '🟢 Safe (Score < 20)'}</span>
+                    <span>WPRS Rating: {parseInt(investAmount) > 100000 ? '⚠️ High Risk (Score > 60)' : '🟢 Safe (Score < 20)'}</span>
                   </div>
 
                   <div className="modal-btn-row">
                     <button className="mobile-btn-cancel" onClick={() => setSelectedQuickAction(null)}>
-                      Cancel
+                      {t('common.cancel')}
                     </button>
                     <button className="mobile-btn-confirm" onClick={handleExecuteInvest} disabled={isProcessing}>
-                      {isProcessing ? 'Evaluating WPRS...' : 'Confirm & Invest'}
+                      {isProcessing ? t('common.loading') : t('home.confirmInvest')}
                     </button>
                   </div>
                 </>

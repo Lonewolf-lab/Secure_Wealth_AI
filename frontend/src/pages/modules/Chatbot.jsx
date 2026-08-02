@@ -1,24 +1,29 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { api } from '../../services/api';
+import { useLanguage } from '../../context/LanguageContext';
 import { 
   Send, 
   Bot, 
   User as UserIcon,
-  Sparkles,
-  HelpCircle,
-  ShieldCheck,
-  TrendingUp,
-  Calculator
+  Sparkles
 } from 'lucide-react';
 import './Chatbot.css';
 
 const Chatbot = () => {
+  const { t } = useLanguage();
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Hello! I am your Punjab & Sind Bank AI Wealth Assistant. Ask me anything about tax saving, portfolio rebalancing, goals compounding, or transaction security.' }
+    { role: 'assistant', content: t('chat.welcomeMsg') }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
+
+  // Update initial message when language changes if only 1 message exists
+  useEffect(() => {
+    if (messages.length === 1 && messages[0].role === 'assistant') {
+      setMessages([{ role: 'assistant', content: t('chat.welcomeMsg') }]);
+    }
+  }, [t]);
 
   // Scroll to bottom when messages change
   const scrollToBottom = () => {
@@ -52,25 +57,20 @@ const Chatbot = () => {
       });
 
       // Add assistant response
-      setMessages(prev => [...prev, { role: 'assistant', content: res.response || "I'm sorry, I encountered an issue compiling the response." }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: res.response || t('common.offline') }]);
     } catch (err) {
       console.error('Failed to communicate with chat service', err);
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Connection offline. Verify if the local AI service is online.' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: t('common.offline') }]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleQuickPrompt = (prompt) => {
-    handleSendMessage(prompt);
+  const handleQuickPrompt = (promptText) => {
+    handleSendMessage(promptText);
   };
 
-  const quickPrompts = [
-    { text: 'How do I save tax under Section 80C?', icon: <Calculator size={14} /> },
-    { text: 'Is my transaction history secure?', icon: <ShieldCheck size={14} /> },
-    { text: 'How is my Wealth Score calculated?', icon: <Sparkles size={14} /> },
-    { text: 'Explain Mean-Variance optimization.', icon: <TrendingUp size={14} /> }
-  ];
+  const prompts = t('chat.prompts') || [];
 
   return (
     <div className="chatbot-content-wrapper">
@@ -126,38 +126,37 @@ const Chatbot = () => {
 
         {/* Suggestion Prompts */}
         <div className="quick-prompts-bar">
-          {quickPrompts.map((qp, idx) => (
+          {prompts.map((pText, idx) => (
             <button 
               key={idx} 
               className="btn-quick-prompt"
-              onClick={() => handleQuickPrompt(qp.text)}
+              onClick={() => handleQuickPrompt(pText)}
               disabled={loading}
             >
-              {qp.icon}
-              <span>{qp.text}</span>
+              <Sparkles size={14} />
+              <span>{pText}</span>
             </button>
           ))}
         </div>
 
         {/* Input Bar */}
-        <form 
-          onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} 
-          className="chatbot-input-bar"
-        >
+        <form onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }} className="chatbot-input-bar">
           <input 
             type="text" 
             value={input} 
             onChange={(e) => setInput(e.target.value)} 
-            placeholder="Type your wealth advisory query..." 
+            placeholder={t('chat.placeholder')}
             disabled={loading}
           />
-          <button type="submit" className="btn btn-primary btn-send" disabled={loading || !input.trim()}>
-            <Send size={16} />
+          <button type="submit" className="btn-send" disabled={loading || !input.trim()}>
+            <Send size={18} />
           </button>
         </form>
-
+        
+        <div className="chatbot-disclaimer-bar">
+          <p>{t('chat.disclaimer')}</p>
+        </div>
       </div>
-
     </div>
   );
 };

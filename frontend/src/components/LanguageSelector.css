@@ -1,0 +1,124 @@
+.language-selector-dropdown {
+  position: relative;
+  display: inline-block;
+  z-index: 1100;
+}
+
+.lang-select-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  color: #f8f8f8;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lang-select-btn:hover {
+  background: rgba(0, 255, 136, 0.12);
+  border-color: #00ff88;
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.15);
+}
+
+.language-selector-dropdown.compact .lang-select-btn {
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  border-radius: 12px;
+}
+
+.globe-icon {
+  color: #00ff88;
+}
+
+.chevron-icon {
+  transition: transform 0.2s ease;
+  color: #a1a1aa;
+}
+
+.chevron-icon.open {
+  transform: rotate(180deg);
+}
+
+.lang-overlay-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1101;
+}
+
+.lang-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: auto;
+  background: #111116;
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 14px;
+  padding: 6px;
+  list-style: none;
+  margin: 0;
+  min-width: 170px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 255, 136, 0.15);
+  z-index: 1102;
+  backdrop-filter: blur(14px);
+}
+
+.lang-dropdown-menu.align-right {
+  left: auto;
+  right: 0;
+}
+
+.lang-dropdown-menu.align-left {
+  left: 0;
+  right: auto;
+}
+
+.lang-option-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  color: #d4d4d8;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+/* RTL adjustment for Urdu */
+[dir="rtl"] .lang-option-btn {
+  text-align: right;
+  flex-direction: row-reverse;
+}
+
+.lang-option-btn:hover {
+  background: rgba(0, 255, 136, 0.15);
+  color: #00ff88;
+}
+
+.lang-option-btn.active {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+  font-weight: 700;
+}
+
+.option-native {
+  font-weight: 600;
+}
+
+.option-code {
+  font-size: 0.72rem;
+  color: #71717a;
+}

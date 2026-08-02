@@ -41,12 +41,16 @@ public class PortfolioService {
     public void recalculateTotalValue(Portfolio portfolio) {
         BigDecimal total = BigDecimal.ZERO;
 
-        for (Asset asset : portfolio.getAssets()) {
-            if (asset.getCurrentValue() != null) total = total.add(asset.getCurrentValue());
+        if (portfolio.getAssets() != null) {
+            for (Asset asset : portfolio.getAssets()) {
+                if (asset.getCurrentValue() != null) total = total.add(asset.getCurrentValue());
+            }
         }
 
-        for (Investment investment : portfolio.getInvestments()) {
-            if (investment.getAmount() != null) total = total.add(investment.getAmount());
+        if (portfolio.getInvestments() != null) {
+            for (Investment investment : portfolio.getInvestments()) {
+                if (investment.getAmount() != null) total = total.add(investment.getAmount());
+            }
         }
 
         portfolio.setTotalValue(total);
